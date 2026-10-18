@@ -10,6 +10,7 @@ import type { ObjectId } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
+import { after } from "next/server";
 import { db, logbook, mongo } from "./db";
 import { inngest } from "./inngest/client";
 import { actionEmail } from "./mail";
@@ -75,6 +76,9 @@ function create() {
         },
       },
     },
+    // Emails (confirm, reset) go out after the response is sent, so signing up or in never waits
+    // on the mail server. after() keeps the serverless function alive until the send finishes.
+    advanced: { backgroundTasks: { handler: p => after(p) } },
     plugins: [nextCookies()],
   });
 }

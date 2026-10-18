@@ -16,8 +16,11 @@ let transport: Transporter | null = null;
 function transporter(): Transporter | null {
   if (transport) return transport;
   const { NODEMAILER_EMAIL: user, NODEMAILER_PASSWORD: pass, SMTP_URL } = process.env;
-  if (user && pass) transport = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
-  else if (SMTP_URL) transport = nodemailer.createTransport(SMTP_URL);
+  // Short timeouts: a mail server that doesn't answer should fail in seconds, not hang a request
+  // (Nodemailer's defaults wait up to two minutes for a connection).
+  const timeouts = { connectionTimeout: 10_000, greetingTimeout: 10_000, socketTimeout: 20_000 };
+  if (user && pass) transport = nodemailer.createTransport({ service: "gmail", auth: { user, pass }, ...timeouts });
+  else if (SMTP_URL) transport = nodemailer.createTransport({ url: SMTP_URL, ...timeouts } as Parameters<typeof nodemailer.createTransport>[0]);
   return transport;
 }
 

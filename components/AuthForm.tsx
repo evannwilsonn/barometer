@@ -66,6 +66,9 @@ export function AuthForm({ mode, industries }: { mode: Mode; industries?: readon
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<null | "check-email" | "unverified" | "reset-sent" | "reset-done">(null);
   const [busy, setBusy] = useState(false);
+  // After a successful sign-in the form stays in its busy state until the logbook arrives,
+  // rather than springing back to life while the next page loads.
+  const [leaving, setLeaving] = useState(false);
   const linkError = params.get("error"); // set by Better Auth when an emailed link is expired or used
 
   async function submit(e: React.FormEvent) {
@@ -85,8 +88,10 @@ export function AuthForm({ mode, industries }: { mode: Mode; industries?: readon
       } else if (mode === "sign-in") {
         const r = await authClient.signIn.email({ email: f.email.trim(), password: f.password, callbackURL: dest });
         if (r.error?.code === "EMAIL_NOT_VERIFIED" || r.error?.status === 403) setDone("unverified");
-        else if (r.error) setError("That email and password don't match");
-        else { router.push(dest); router.refresh(); }
+        else if (r.error?.status === 401) setError("That email and password don't match");
+        else if (r.error?.status === 429) setError("Too many tries; wait a minute and try again");
+        else if (r.error) setError(r.error.message || "Couldn't sign in; try again");
+        else { setLeaving(true); router.replace(dest); router.refresh(); return; }
       } else if (mode === "forgot") {
         await authClient.requestPasswordReset({ email: f.email.trim(), redirectTo: "/reset-password" });
         setDone("reset-sent"); // the same answer whether or not the address has an account
@@ -97,6 +102,8 @@ export function AuthForm({ mode, industries }: { mode: Mode; industries?: readon
         if (r.error) setError("This reset link has expired or was already used; ask for a new one");
         else setDone("reset-done");
       }
+    } catch {
+      setError("Couldn't reach Barometer; check your connection and try again");
     } finally {
       setBusy(false);
     }
@@ -151,7 +158,7 @@ export function AuthForm({ mode, industries }: { mode: Mode; industries?: readon
         </>
       )}
       {error && <p role="alert" className="rounded-sm border border-merlot px-4 py-3 text-[16px]">{error}</p>}
-      <button type="submit" disabled={busy} className={primary}>{busy ? "One moment…" : label}</button>
+      <button type="submit" disabled={busy || leaving} className={primary}>{leaving ? "Opening your logbook…" : busy ? "One moment…" : label}</button>
       <p className="text-[16px] text-soft">
         {mode === "sign-up" && <>Already keep one? <a href={`/sign-in${keepNext}`} className="text-merlot underline underline-offset-4">Sign in</a></>}
         {mode === "sign-in" && <>New here? <a href={`/sign-up${keepNext}`} className="text-merlot underline underline-offset-4">Keep a logbook</a></>}

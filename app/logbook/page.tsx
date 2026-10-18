@@ -26,12 +26,12 @@ export default async function Page() {
   if (!user) redirect("/sign-in?next=/logbook");
   const entries = await (await logbook()).find({ userId: user.id }).sort({ addedAt: 1 }).toArray();
 
-  // One reading at a time: the free price plan allows 8 requests a minute, and readings are cached for 15.
-  const readings: (Reading | { error: string })[] = [];
-  for (const e of entries) {
-    try { readings.push(await reading(e.symbol)); } catch (err) { readings.push({ error: (err as Error).message }); }
-  }
-  const articles = entries.length && finnhubOn() ? await news(entries.map(e => e.symbol), 8) : [];
+  // Readings and news load together rather than one after another. Price data is cached for
+  // 15 minutes, so only the first visit in a while waits on Twelve Data.
+  const [readings, articles] = await Promise.all([
+    Promise.all(entries.map(e => reading(e.symbol).catch((err: Error) => ({ error: err.message })))) as Promise<(Reading | { error: string })[]>,
+    entries.length && finnhubOn() ? news(entries.map(e => e.symbol), 8) : Promise.resolve([]),
+  ]);
   const first = user.name.split(/\s+/)[0];
 
   return (
