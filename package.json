@@ -8,7 +8,8 @@
     "start": "next start",
     "evaluate": "tsx scripts/evaluate.ts",
     "snapshot": "tsx scripts/snapshot.ts",
-    "test": "tsx --test lib/*.test.ts"
+    "test": "tsx --test lib/*.test.ts",
+    "e2e": "tsx scripts/e2e.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.10",
@@ -27,6 +28,7 @@
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
     "hyparquet": "1.31.2",
+    "playwright": "1.56.0",
     "tailwindcss": "4.3.3",
     "tsx": "4.23.15",
     "typescript": "5.9.3"

@@ -1,0 +1,158 @@
+# Barometer's pipeline. Every push and pull request:
+#   check  typecheck, unit tests, production build
+#   e2e    starts the app with MongoDB, Mailpit and the Inngest dev server, then drives the whole
+#          account flow in a real browser (sign-up, emailed confirmation, dispatch, unsubscribe,
+#          password reset, account deletion)
+#   image  builds the Docker image, checks it serves, and on main publishes it to GitHub's
+#          container registry
+# The live site deploys from main through Vercel's Git integration.
+name: pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: pipeline-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/barometer
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 1
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Unit tests
+        run: npm test
+      - name: Build
+        run: npm run build
+
+  e2e:
+    needs: check
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:8
+        ports: ["27017:27017"]
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.runCommand({ping:1})'"
+          --health-interval 5s
+          --health-retries 20
+      mail:
+        image: axllent/mailpit:latest
+        ports: ["1025:1025", "8025:8025"]
+    env:
+      MONGODB_URI: mongodb://localhost:27017/barometer
+      MONGODB_TRANSACTIONS: "false"
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ci-only-secret-for-a-throwaway-database-0123456789
+      SMTP_URL: smtp://localhost:1025
+      INNGEST_DEV: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Browser for the test
+        run: npx playwright install --with-deps chromium
+      - name: Build and start the app
+        run: |
+          npm run build
+          nohup npm start > app.log 2>&1 &
+          for i in $(seq 1 60); do curl -fs -o /dev/null localhost:3000/legal && break; sleep 1; done
+      - name: Start the Inngest dev server (runs the email jobs)
+        run: |
+          docker run -d --name inngest --network host inngest/inngest:latest \
+            inngest dev -u http://localhost:3000/api/inngest --no-discovery
+          for i in $(seq 1 60); do curl -fs -o /dev/null localhost:8288 && break; sleep 1; done
+      - name: End-to-end test
+        run: npm run e2e
+      - name: Logs and screenshot on failure
+        if: failure()
+        run: |
+          cat app.log || true
+          docker logs inngest || true
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-failure
+          path: e2e-failure.png
+          if-no-files-found: ignore
+
+  image:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Tags
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: run
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test the image
+        # Without a database the image runs the public forecast pages with accounts switched off,
+        # which proves it starts and serves; the e2e job covers accounts.
+        run: |
+          tag=$(echo "${{ steps.meta.outputs.tags }}" | head -n1)
+          docker run -d --name barometer -p 3000:3000 "$tag"
+          for i in $(seq 1 60); do curl -fs -o /dev/null localhost:3000/legal && break; sleep 1; done
+          curl -fs localhost:3000/legal -o legal.html && grep -q "Terms and privacy" legal.html
+          curl -fs localhost:3000/sign-in -o sign-in.html && grep -q "switched off" sign-in.html
+          docker image inspect "$tag" --format 'image size: {{.Size}} bytes'
+          docker logs barometer
+
+      - name: Log in to GitHub's container registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: run
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha

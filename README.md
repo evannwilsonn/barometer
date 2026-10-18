@@ -6,6 +6,8 @@ Readers can also keep a **logbook** of the stocks they follow and get a morning 
 
 It forecasts the **size** of moves, not their direction. Whether a stock goes up or down next week is close to a coin flip, and nothing here claims otherwise. Nothing here is investment advice.
 
+[![pipeline](https://github.com/evannwilsonn/barometer/actions/workflows/pipeline.yml/badge.svg)](https://github.com/evannwilsonn/barometer/actions/workflows/pipeline.yml)
+
 **Live app:** [barometer-three.vercel.app](https://barometer-three.vercel.app), on Vercel. **Saved page:** [evannwilsonn.github.io/barometer](https://evannwilsonn.github.io/barometer/) is a frozen AAPL forecast with the accuracy results.
 
 ## 1. Problem
@@ -138,6 +140,27 @@ The page shows:
 - **Price range:** a bar for the likely closing price a week out.
 - **Note:** the written explanation.
 - **Backtest:** the model's past forecasts for that stock against what each following week turned out to be.
+
+### Pipeline and containers
+
+Every push runs [`.github/workflows/pipeline.yml`](.github/workflows/pipeline.yml):
+
+- **check:** typecheck, unit tests, production build.
+- **e2e:** starts the built app with MongoDB, Mailpit (a mail catcher) and the Inngest dev server, then [`scripts/e2e.ts`](scripts/e2e.ts) drives a real browser through every account flow: sign-up and the emailed confirmation, the welcome email from Inngest, adding a stock, the dispatch and its one-click unsubscribe headers, a forged unsubscribe link, sign-in timing, password reset, and account deletion, then checks five pages fit a phone. 20 checks.
+- **image:** builds the Dockerfile, starts the container and checks it serves, then on `main` publishes `ghcr.io/evannwilsonn/barometer:latest` and `:<short sha>`.
+
+Vercel deploys `main` to the live site on its own. The Docker image is the same app for any other host.
+
+The whole stack also runs on one machine:
+
+```sh
+docker compose up -d --build                                    # app :3000, inbox :8025, Inngest :8288
+docker compose -f compose.yml -f compose.dev.yml watch           # next dev with live sync of your edits
+docker compose -f compose.yml -f compose.prod.yml up -d          # the published image instead of a build
+npm run e2e                                                      # the browser test against whichever is running
+```
+
+Compose wires the database, email and jobs to its own containers, so nothing it sends reaches a real inbox; API keys come from `.env` if there is one. The image is Next's standalone server on Alpine as a non-root user. Because a container only learns its settings when it starts, the account pages wait for a request before deciding whether accounts are on, rather than being pre-rendered at build time.
 
 ## Legal
 

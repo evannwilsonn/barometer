@@ -1,0 +1,15 @@
+# Development: `next dev` in the container, with your edits synced in as you save.
+#
+#   docker compose -f compose.yml -f compose.dev.yml watch
+services:
+  app:
+    build: { context: ., target: dev }
+    image: barometer:dev
+    develop:
+      watch:
+        - { action: sync, path: ./app, target: /app/app }
+        - { action: sync, path: ./components, target: /app/components }
+        - { action: sync, path: ./lib, target: /app/lib }
+        - { action: sync, path: ./proxy.ts, target: /app/proxy.ts }
+        - { action: rebuild, path: ./package.json }
+        - { action: rebuild, path: ./next.config.ts }

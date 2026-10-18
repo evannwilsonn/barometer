@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.github
+.vercel
+.impeccable
+data
+docs
+.env*
+!.env.example
+*.tsbuildinfo
+e2e-failure.png
+Dockerfile
+compose*.yml

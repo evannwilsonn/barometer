@@ -1,0 +1,14 @@
+# Production image: runs what the pipeline published instead of building from source.
+#
+#   docker compose -f compose.yml -f compose.prod.yml pull
+#   docker compose -f compose.yml -f compose.prod.yml up -d
+#
+# IMAGE_TAG picks a version (a commit's short SHA); without it, the latest build of main runs.
+# The live site itself is on Vercel; this is for running the same build anywhere else.
+services:
+  app:
+    build: !reset null
+    image: ghcr.io/evannwilsonn/barometer:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+  mongo:
+    restart: unless-stopped

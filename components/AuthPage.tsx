@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { accountsOn, currentUser, INDUSTRIES } from "@/lib/auth";
 import { AuthForm, type Mode } from "./AuthForm";
 import { Footer } from "./Footer";
@@ -14,6 +15,7 @@ const COPY: Record<Mode, [string, string]> = {
 
 /** The account pages share one layout: the form on the left, what a logbook gives you on the right. */
 export async function AuthPage({ mode }: { mode: Mode }) {
+  await connection(); // accounts on or off is a run-time setting (see currentUser)
   if (!accountsOn()) {
     return (
       <main className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-7">

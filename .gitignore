@@ -7,3 +7,4 @@ data/raw/
 *.tsbuildinfo
 .vercel/
 .impeccable/
+e2e-failure.png

@@ -1,0 +1,52 @@
+# The whole of Barometer on one machine: the app, MongoDB, the Inngest dev server that runs the
+# email jobs, and Mailpit, which catches every email the app sends.
+#
+#   docker compose up -d --build        # app on http://localhost:3000, inbox on http://localhost:8025
+#
+# API keys (Twelve Data, Groq, Finnhub) are read from .env if it exists; without them the app
+# falls back to the demo price key and writes notes in code. Database, email and jobs are wired
+# to the containers below whatever .env says.
+#
+# compose.dev.yml adds live reload; compose.prod.yml runs the published image instead of building.
+services:
+  app:
+    build: { context: ., target: run }
+    image: barometer:local
+    ports: ["3000:3000"]
+    env_file: [{ path: .env, required: false }]
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/barometer
+      MONGODB_TRANSACTIONS: "false"         # a single mongod, not a replica set
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-local-only-not-for-production-0123456789abcdef}
+      SMTP_URL: smtp://mail:1025
+      NODEMAILER_EMAIL: ""                  # send through Mailpit, never a real Gmail, from here
+      NODEMAILER_PASSWORD: ""
+      MAIL_FROM: barometer@localhost
+      INNGEST_DEV: http://inngest:8288
+      INNGEST_EVENT_KEY: ""
+      INNGEST_SIGNING_KEY: ""
+    depends_on:
+      mongo: { condition: service_healthy }
+      mail: { condition: service_started }
+      inngest: { condition: service_started }
+
+  mongo:
+    image: mongo:8
+    volumes: [mongo:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      retries: 20
+
+  inngest:
+    image: inngest/inngest:latest
+    command: ["inngest", "dev", "-u", "http://app:3000/api/inngest", "--no-discovery"]
+    ports: ["8288:8288"]                    # the Inngest dashboard: runs, events, the dispatch cron
+
+  mail:
+    image: axllent/mailpit:latest
+    ports: ["8025:8025"]                    # the inbox for every email the app sends
+
+volumes:
+  mongo:

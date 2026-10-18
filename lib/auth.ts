@@ -10,7 +10,7 @@ import type { ObjectId } from "mongodb";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { nextCookies } from "better-auth/next-js";
 import { headers } from "next/headers";
-import { after } from "next/server";
+import { after, connection } from "next/server";
 import { db, logbook, mongo } from "./db";
 import { inngest } from "./inngest/client";
 import { actionEmail } from "./mail";
@@ -96,6 +96,9 @@ export function auth(): Auth {
 
 /** The signed-in user for this request, or null (also null when accounts are off). */
 export async function currentUser() {
+  // Wait for a real request: whether accounts are on is decided by the environment at run time,
+  // which a Docker image only gets when it starts, so these pages must never be pre-rendered.
+  await connection();
   if (!accountsOn()) return null;
   const s = await auth().api.getSession({ headers: await headers() }).catch(() => null);
   return s?.user ?? null;
