@@ -23,5 +23,15 @@ export async function report(raw: string): Promise<Report> {
   };
 }
 
+/** A forecast without the written note, for the logbook and the morning dispatch. */
+export type Reading = Pick<Forecast, "symbol" | "asOf" | "price" | "vol" | "lastMonth" | "range68"> & { level: string };
+
+export async function reading(symbol: string): Promise<Reading> {
+  const s = cleanSymbol(symbol);
+  if (!s) throw new SourceError("that doesn't look like a ticker symbol", 400);
+  const f = forecast(s, await dailyCandles(s, process.env.TWELVE_DATA_API_KEY || "demo"));
+  return { symbol: f.symbol, asOf: f.asOf, price: f.price, vol: f.vol, lastMonth: f.lastMonth, range68: f.range68, level: f.level.name };
+}
+
 const prettyModel = (m: string) =>
   m.replace(/^llama-(\d)\.(\d)-(\d+)b.*$/i, "Llama $1.$2 $3B").replace(/^llama-(\d)-(\d+)b.*$/i, "Llama $1 $2B");

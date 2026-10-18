@@ -39,3 +39,14 @@ Dark mode is its own set of values, not an inversion: the case deepens, the dial
 - **Marcellus:** the dial lettering, zone words, readings and headings. It is an engraved Roman, like the lettering on instrument dials and brass plates.
 - **Newsreader:** running text and the italic log entry.
 - **Spline Sans Mono:** labels, prices and chart ticks.
+
+## Accounts, logbook and email
+
+The pages added for accounts use the same instrument vocabulary rather than an app-dashboard look:
+
+- **Masthead:** the name plate, a "Find a stock ⌘K" field in porcelain, and the account initials in a copper disc, like a maker's mark.
+- **Search:** a porcelain card over a dimmed wall. Tickers are set in Marcellus, names in Newsreader; the active row takes the light range-band colour.
+- **Sign-up:** the form on the left; on the right, a panel with the certificate's double merlot border, listing what a logbook gives you. No testimonials or stock photos. Profile answers are chips: the chosen one gets the dark range band and a merlot edge.
+- **Logbook:** a ledger table under the heading "The week ahead". Each row has its dial word in merlot over a five-segment scale that shows where the reading sits between Settled and Stormy.
+- **Email:** a 600 px porcelain card with a merlot top rule, Georgia for text and Courier for figures (email clients don't load web fonts), and a footer with the no-direction, no-advice line. A change of weather is set in a range-band box above the table.
+- **TradingView chart:** the widget gets the porcelain background and rule colour as its grid, so it sits inside the panel rather than on a black slab.

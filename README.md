@@ -2,6 +2,8 @@
 
 How rough will next week be? Barometer forecasts how much a US stock is likely to move over the next five trading days, turns that into a likely price range, and has a language model explain it in plain words. It's a Next.js app in TypeScript. The forecasting model is fitted from scratch in TypeScript too, and evaluated on twenty years of S&P 500 prices.
 
+Readers can also keep a **logbook** of the stocks they follow and get a morning email with each one's reading and news (accounts, search, charts and email jobs added after JavaScript Mastery's stock-app tutorial; see [7. Deployment](#7-deployment)).
+
 It forecasts the **size** of moves, not their direction. Whether a stock goes up or down next week is close to a coin flip, and nothing here claims otherwise. Nothing here is investment advice.
 
 **Saved page:** [evannwilsonn.github.io/barometer](https://evannwilsonn.github.io/barometer/) is a frozen AAPL forecast with the accuracy results. The live app needs the server below.
@@ -93,6 +95,41 @@ npm run dev                   # http://localhost:3000
 
 **On Vercel:** import the repo and add the same two variables under Settings → Environment Variables. The keys stay on the server and never reach the browser.
 
+### Accounts, the logbook and the morning dispatch
+
+The second half of the app follows JavaScript Mastery's tutorial [*Build a Stock Market App*](https://youtu.be/gu4pafNCXng) (Signalist): sign-in with Better Auth and MongoDB, a ⌘K stock search, TradingView charts, company news, and Inngest jobs that send email through Nodemailer. Those parts are rebuilt here around the forecast rather than copied:
+
+- **Accounts:** email and password through Better Auth, with users and sessions in MongoDB. Sign-up asks the tutorial's four profile questions (country, investment goal, risk tolerance, the industry you follow), and they're stored on the user.
+- **Search:** ⌘K / Ctrl-K opens a search over Finnhub's US listings. Picking a stock takes its reading.
+- **Logbook:** the tutorial left the watchlist as homework (its button only toggled local state, and there was no page). Here a reading has an *Add to your logbook* button, and `/logbook` lists every saved stock with this week's reading, last month, the likely close and recent headlines. Every logbook action checks the session on the server, and a reader only touches their own entries. `proxy.ts` (Next 16's renamed middleware) sends signed-out visitors to sign in.
+- **Chart and news:** a TradingView advanced chart in the instrument's colours and the stock's last five days of Finnhub headlines sit under the barograph. Headlines are shown as published; the forecast doesn't use them.
+- **Welcome email:** on sign-up, Better Auth's `user.create.after` hook sends an `app/user.created` event to Inngest. Inngest asks Groq for two or three sentences from the profile answers, runs them through the same advice filter as the forecast note, and emails them. Without a Groq key, the note is written from the answers in code.
+- **Morning dispatch:** an Inngest cron at 8:30 New York time on weekdays (`TZ=America/New_York 30 8 * * 1-5`), and a button on the logbook page that queues one for the signed-in reader only. Each stock gets one reading however many readers follow it, pausing after every eight for Twelve Data's free rate limit. Each reader's email has their readings, a line for any stock whose dial word changed since the last dispatch (Fair to Change, say), and Groq's summary of up to six headlines with the links. Every number in the email comes from code, and only the news paragraphs are written by the model. Everything in the email is HTML-escaped, including the model's text.
+
+The tutorial uses Gemini for the AI parts and keeps the Finnhub key in a `NEXT_PUBLIC_` variable, which ships it to the browser. Here Groq stays the one model provider, and every key stays on the server. The tutorial's middleware also sat in `middleware/index.ts`, where Next.js never loads it.
+
+**Setting it up.** Each service has a free tier, and you create the accounts and paste the keys into `.env.local` yourself:
+
+| Variable | From |
+|---|---|
+| `MONGODB_URI` | a free MongoDB Atlas cluster (Database → Connect → Drivers) |
+| `BETTER_AUTH_SECRET` | any long random string: `openssl rand -hex 32` |
+| `BETTER_AUTH_URL` | the site's address, `http://localhost:3000` locally |
+| `FINNHUB_API_KEY` | finnhub.io, free plan |
+| `NODEMAILER_EMAIL`, `NODEMAILER_PASSWORD` | a Gmail address and a Gmail *app password* (needs 2-step verification on; paste the 16 letters without spaces) |
+| `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY` | the Inngest dashboard, for production only |
+
+Without `MONGODB_URI` the accounts and logbook are switched off and the forecast pages work as before. Without a Finnhub key, search covers ten popular stocks and the news is hidden. Without Gmail settings, emails go to `SMTP_URL` if it's set, or are only logged.
+
+Locally:
+
+```sh
+npm run dev                                                     # the app
+npx inngest-cli@latest dev -u http://localhost:3000/api/inngest # the job runner, with INNGEST_DEV=1 in .env.local
+```
+
+**Tested here** without any real accounts, using containers: MongoDB 8 (standalone, so `MONGODB_TRANSACTIONS=false`; Atlas doesn't need it), the Inngest dev server, and Mailpit as the mail server (`SMTP_URL=smtp://localhost:1025`). A browser script signs up, adds AAPL from its reading, opens the logbook, and requests a dispatch. Both the welcome email and the dispatch arrive, with no console errors and no sideways scrolling at 390 px. `lib/dispatch.test.ts` checks the weather-change lines and that every name, headline, URL and model sentence is escaped in the email. On Vercel, add the variables above and connect the Inngest integration, which syncs `/api/inngest`.
+
 The page shows:
 
 - **Dial:** a barometer face. The needle is the forecast and a copper set hand marks last month, the way a real barometer's set hand marks the previous reading. Its words run Settled, Fair, Change, Rough, Stormy, with boundaries at 19%, 28%, 45% and 90%: the 10th, 50th, 90th and 99th percentiles of forecasts in the test years, rounded.
@@ -120,10 +157,19 @@ lib/vol.ts          returns, Parkinson range, HAR features, forecasts, losses
 lib/ols.ts          streaming least squares with a Cholesky solve
 lib/forecast.ts     a stock's candles → forecast, range, dial reading, backtest
 lib/sources.ts      Twelve Data and Groq clients, the advice filter, the fallback note
-lib/station.ts      one request end to end
+lib/station.ts      one request end to end, and the bare reading for the logbook
+lib/auth.ts         Better Auth: email and password, profile fields, the sign-up hook
+lib/db.ts           the MongoDB connection and the logbook collection
+lib/finnhub.ts      search, company names and news
+lib/actions.ts      server actions: search, logbook, request a dispatch
+lib/writer.ts       Groq for the welcome note and the news summary, with fallbacks
+lib/mail.ts         Nodemailer and the email frame
+lib/inngest/        the welcome and morning-dispatch jobs
+proxy.ts            sends signed-out visitors from /logbook to sign in
 scripts/evaluate.ts fitting, tuning and scoring
 scripts/snapshot.ts saves the rendered page for GitHub Pages
-app/                the page and the API route
+app/                the pages (reading, sign-in, sign-up, logbook) and API routes
+components/         masthead, search, logbook controls, chart, news
 ```
 
 The page design is described in [DESIGN.md](DESIGN.md).
@@ -132,4 +178,5 @@ The page design is described in [DESIGN.md](DESIGN.md).
 
 - **US stocks only:** the model was fitted on large US stocks. It will produce numbers for anything with daily prices, but small caps, crypto and currencies behave differently.
 - **Predictable events:** earnings days are predictably wild, and the model doesn't know when they are. A calendar of earnings dates is the obvious next feature.
-- **No news:** the note explains numbers, not events. It doesn't read the news, and it's told not to guess.
+- **News isn't in the forecast:** headlines are shown next to the reading and summarised in the dispatch, but the model doesn't use them, and the note under each forecast is told not to guess at events.
+- **Email at scale:** the dispatch sends one email at a time through one Gmail account, which suits a portfolio project, not thousands of readers. A transactional mail service would replace Gmail there.

@@ -1,8 +1,10 @@
 import evalJson from "@/results/eval.json";
 import { report, type Report } from "@/lib/station";
 import { Station } from "./station";
+import { Masthead } from "@/components/Masthead";
+import { accountsOn, currentUser } from "@/lib/auth";
+import { logbookSymbols } from "@/lib/actions";
 
-export const revalidate = 900;
 
 type Sc = { qlike: number; logRmse: number };
 const E = evalJson as unknown as {
@@ -82,30 +84,28 @@ function Certificate() {
   );
 }
 
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<{ s?: string }> }) {
+  const { s } = await searchParams;
+  const symbol = (typeof s === "string" && s.trim()) || "AAPL";
   let initial: Report | null = null, initialError: string | null = null;
   try {
-    initial = await report("AAPL");
+    initial = await report(symbol);
   } catch (e) {
     initialError = (e as Error).message;
   }
+  const user = await currentUser();
+  const saved = user ? (await logbookSymbols()) ?? [] : [];
   return (
     <main className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-7">
-      <header className="flex flex-wrap items-center justify-between gap-4 py-6">
-        <span className="engraved rounded-sm bg-case px-3 py-1.5 text-[18px] text-case-ink">Barometer</span>
-        <nav className="flex gap-6 text-[16px]">
-          <a href="#accuracy" className="underline underline-offset-4">Calibration</a>
-          <a href="https://github.com/evannwilsonn/barometer" className="underline underline-offset-4">Source</a>
-        </nav>
-      </header>
+      <Masthead />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 border-t border-rule py-12 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end">
         <h1 className="engraved text-[44px] leading-[1.02] text-balance sm:text-[64px]">How rough will next week be?</h1>
         <p className="text-[18px] leading-relaxed text-soft">A barometer for stocks. It forecasts how much a stock is likely to move over the next five trading days, turns that into a likely price range, and explains it in plain words. It reads the size of moves, never their direction.</p>
       </div>
-      <Station initial={initial} initialError={initialError} />
+      <Station key={symbol.toUpperCase()} initial={initial} initialError={initialError} accounts={accountsOn()} signedIn={Boolean(user)} saved={saved} />
       <Certificate />
       <footer className="mt-14 grid grid-cols-[minmax(0,1fr)] gap-4 border-t border-rule pt-6 text-[14px] text-faint sm:grid-cols-2">
-        <p>Prices from Twelve Data. Notes written by a language model on Groq from the numbers shown, with a check that drops any advice. Nothing here is investment advice.</p>
+        <p>Prices from Twelve Data, headlines from Finnhub, charts by TradingView. Notes written by a language model on Groq from the numbers shown, with a check that drops any advice. Nothing here is investment advice. <a href="https://github.com/evannwilsonn/barometer" className="underline underline-offset-4">Source on GitHub</a>.</p>
         <p>Barometer is project 11 of Evan Wilson&apos;s AI project run. Set in Marcellus, Newsreader and Spline Sans Mono.</p>
       </footer>
     </main>

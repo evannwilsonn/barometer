@@ -75,7 +75,10 @@
 
 html { -webkit-text-size-adjust: 100%; }
 body { background: var(--wall); color: var(--ink); font-family: var(--font-newsreader), Georgia, serif; }
-:focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+/* In the base layer, so a component can still opt out with outline-none (the search box draws its own). */
+@layer base {
+  :focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+}
 .tabular { font-variant-numeric: tabular-nums lining-nums; }
 .label { font-family: var(--font-spline-mono), ui-monospace, monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
 .engraved { font-family: var(--font-marcellus), Georgia, serif; letter-spacing: 0.06em; text-transform: uppercase; }

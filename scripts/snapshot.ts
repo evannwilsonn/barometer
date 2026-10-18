@@ -37,6 +37,9 @@ html = html
   .replace(/<link[^>]+rel="(preload|modulepreload)"[^>]*>/g, "")
   .replace(/<link[^>]+rel="icon"[^>]*>/g, "");
 
+// Controls that need the server (search) are dropped.
+html = html.replace(/<button[^>]*data-live-only[^>]*>[\s\S]*?<\/button>/g, "");
+
 // The form can't run without the server: swap it for a pointer to the live app.
 const saved = `This is a saved copy of the AAPL forecast from ${new Date().toISOString().slice(0, 10)}.`;
 const live = LIVE

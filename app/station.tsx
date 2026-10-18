@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Report } from "@/lib/station";
 import { LEVELS, type Forecast } from "@/lib/forecast";
+import { LogbookButton } from "@/components/LogbookButton";
+import { NewsList } from "@/components/NewsList";
+import { TradingViewChart } from "@/components/TradingViewChart";
 
 const fmt = (x: number) => x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -173,7 +176,9 @@ function Barograph({ f }: { f: Forecast }) {
 
 // ---------- the instrument ----------
 
-function Instrument({ r }: { r: Report }) {
+type Account = { accounts: boolean; signedIn: boolean; saved: string[] };
+
+function Instrument({ r, account }: { r: Report; account: Account }) {
   const f = r.forecast;
   const cmp = f.vol > f.lastMonth * 1.1 ? "rougher than" : f.vol < f.lastMonth * 0.9 ? "calmer than" : "about the same as";
   const readings: [string, string, string, string | null][] = [
@@ -188,6 +193,7 @@ function Instrument({ r }: { r: Report }) {
         <p className="label">Reading for {f.symbol}</p>
         <p className="engraved mt-2 text-[56px] leading-none text-merlot sm:text-[68px]">{f.level.name}</p>
         <p className="mt-2 text-[18px] text-soft">{f.level.note}; {cmp} the last month.</p>
+        {account.accounts && <div className="mt-5"><LogbookButton key={f.symbol} symbol={f.symbol} signedIn={account.signedIn} saved={account.saved.includes(f.symbol)} /></div>}
         <dl className="mt-7 divide-y divide-rule border-y border-rule">
           {readings.map(([k, note, v, swatch]) => (
             <div key={k} className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 py-3">
@@ -224,7 +230,9 @@ function Log({ r }: { r: Report }) {
   );
 }
 
-export function Station({ initial, initialError }: { initial: Report | null; initialError: string | null }) {
+export function Station({ initial, initialError, ...account }: { initial: Report | null; initialError: string | null } & Account) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [r, setR] = useState<Report | null>(initial);
   const [error, setError] = useState<string | null>(initialError);
   const [busy, setBusy] = useState(false);
@@ -266,7 +274,7 @@ export function Station({ initial, initialError }: { initial: Report | null; ini
       {r?.demo && <p className="mb-8 text-[14px] text-faint">Running on the price service&apos;s public demo key, which only covers a few symbols such as AAPL.</p>}
       {r && (
         <div className={busy ? "opacity-60 transition-opacity" : "transition-opacity"}>
-          <section className="rounded-md bg-porcelain p-6 sm:p-10" aria-label="Reading"><Instrument r={r} /></section>
+          <section className="rounded-md bg-porcelain p-6 sm:p-10" aria-label="Reading"><Instrument r={r} account={account} /></section>
           <div className="mt-10"><Log r={r} /></div>
           <section className="mt-12" aria-labelledby="h-baro">
             <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
@@ -275,6 +283,13 @@ export function Station({ initial, initialError }: { initial: Report | null; ini
             </div>
             <div className="rounded-md bg-porcelain p-5 sm:p-7"><Barograph f={r.forecast} /></div>
           </section>
+          {mounted && (
+            <section className="mt-12" aria-labelledby="h-chart">
+              <h2 id="h-chart" className="engraved mb-4 text-[26px]">Price chart · {r.forecast.symbol}</h2>
+              <div className="rounded-md bg-porcelain p-3 sm:p-4"><TradingViewChart symbol={r.forecast.symbol} /></div>
+            </section>
+          )}
+          {mounted && <NewsList symbol={r.forecast.symbol} />}
         </div>
       )}
     </div>
