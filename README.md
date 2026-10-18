@@ -8,7 +8,7 @@ It forecasts the **size** of moves, not their direction. Whether a stock goes up
 
 ## 1. Problem
 
-How much a stock moves matters for things like sizing a position, setting a stop, or pricing an option. Unlike direction, it's partly predictable: rough weeks cluster together and calm ones do too. The task is to forecast a stock's realised volatility over the next 5 trading days from its daily prices, closely enough to beat the methods people already use, and to show it as something a non-specialist can read: a warning level, a price range and a short note.
+How much a stock moves matters for things like sizing a position, setting a stop, or pricing an option. Unlike direction, it's partly predictable: rough weeks cluster together and calm ones do too. The task is to forecast a stock's realised volatility over the next 5 trading days from its daily prices, closely enough to beat the methods people already use, and to show it as something a non-specialist can read: a reading on a barometer dial, a price range and a short note.
 
 The target is the annualised standard deviation of the next five daily log returns. A forecast of 20% means a typical day moves about 1.3%.
 
@@ -95,7 +95,7 @@ npm run dev                   # http://localhost:3000
 
 The page shows:
 
-- **Warning level:** after the US coastal warning flags. The thresholds (19%, 28%, 45% and 90%) are the 10th, 50th, 90th and 99th percentiles of forecasts in the test years, rounded.
+- **Dial:** a barometer face. The needle is the forecast and a copper set hand marks last month, the way a real barometer's set hand marks the previous reading. Its words run Settled, Fair, Change, Rough, Stormy, with boundaries at 19%, 28%, 45% and 90%: the 10th, 50th, 90th and 99th percentiles of forecasts in the test years, rounded.
 - **Numbers:** the forecast next to last month's volatility and EWMA.
 - **Price range:** a bar for the likely closing price a week out.
 - **Note:** the written explanation.
@@ -118,7 +118,7 @@ SNAPSHOT_URL=http://localhost:3000 npm run snapshot   # docs/index.html
 ```
 lib/vol.ts          returns, Parkinson range, HAR features, forecasts, losses
 lib/ols.ts          streaming least squares with a Cholesky solve
-lib/forecast.ts     a stock's candles → forecast, range, warning level, backtest
+lib/forecast.ts     a stock's candles → forecast, range, dial reading, backtest
 lib/sources.ts      Twelve Data and Groq clients, the advice filter, the fallback note
 lib/station.ts      one request end to end
 scripts/evaluate.ts fitting, tuning and scoring

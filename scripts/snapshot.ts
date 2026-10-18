@@ -42,8 +42,8 @@ const saved = `This is a saved copy of the AAPL forecast from ${new Date().toISO
 const live = LIVE
   ? `<a class="underline underline-offset-4" href="${LIVE}">Open the live app</a> to forecast any US stock.`
   : `The live app needs a server for prices and notes; <a class="underline underline-offset-4" href="https://github.com/evannwilsonn/barometer#7-deployment">the README shows how to run it</a>.`;
-html = html.replace(/<form[\s\S]*?<\/form>/, `<p class="mb-6 text-[15px] text-soft">${saved} ${live}</p>`);
-html = html.replace(/<p class="mb-6 text-\[14px\] text-faint">Running on the price service[\s\S]*?<\/p>/, "");
+html = html.replace(/<form[\s\S]*?<\/form>/, `<p class="mb-8 text-[16px] text-soft">${saved} ${live}</p>`);
+html = html.replace(/<p class="mb-8 text-\[14px\] text-faint">Running on the price service[\s\S]*?<\/p>/, "");
 
 mkdirSync("docs", { recursive: true });
 writeFileSync("docs/index.html", html);

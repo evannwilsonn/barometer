@@ -1,5 +1,5 @@
 // Turns a stock's recent daily candles into the page's forecast: next-week volatility from the
-// fitted model, the price range that implies, a warning level, and a backtest of the model on
+// fitted model, the price range that implies, its reading on the dial, and a backtest of the model on
 // this stock over the past months.
 
 import modelJson from "../model/model.json";
@@ -8,16 +8,16 @@ import { Candle, HORIZON, Model, annVol, ewmaVar, features, futureVol, logReturn
 export const model = modelJson as unknown as Model & { name: string; trainedThrough: string };
 
 /**
- * Warning levels, after the US coastal warning flags. The thresholds are the 10th, 50th, 90th
- * and 99th percentiles of next-week forecasts for S&P 500 stocks in 2020–2024, rounded
- * (results/eval.json: test.percentiles).
+ * The words on the dial, after the words on an aneroid barometer (which run Stormy to Very Dry).
+ * The boundaries are the 10th, 50th, 90th and 99th percentiles of next-week forecasts for
+ * S&P 500 stocks in 2020–2024, rounded (results/eval.json: test.percentiles).
  */
 export const LEVELS = [
-  { min: 0, name: "Calm", flags: 0, note: "quieter than 90% of large-stock forecasts" },
-  { min: 19, name: "Small-craft advisory", flags: 1, note: "calmer than a typical large stock" },
-  { min: 28, name: "Gale warning", flags: 2, note: "rougher than a typical large stock" },
-  { min: 45, name: "Storm warning", flags: 3, note: "rougher than 90% of large-stock forecasts" },
-  { min: 90, name: "Hurricane warning", flags: 4, note: "rougher than 99% of large-stock forecasts" },
+  { min: 0, name: "Settled", note: "quieter than 90% of large-stock forecasts" },
+  { min: 19, name: "Fair", note: "calmer than a typical large stock" },
+  { min: 28, name: "Change", note: "rougher than a typical large stock" },
+  { min: 45, name: "Rough", note: "rougher than 90% of large-stock forecasts" },
+  { min: 90, name: "Stormy", note: "rougher than 99% of large-stock forecasts" },
 ] as const;
 export const levelOf = (vol: number) => [...LEVELS].reverse().find(l => vol >= l.min)!;
 
@@ -94,7 +94,7 @@ export function factsFor(f: Forecast) {
     `Stock: ${f.symbol}, last close ${p(f.price)} on ${f.asOf}.`,
     `Forecast volatility for the next 5 trading days: ${f.vol}% annualised (model: ${model.name}).`,
     `For comparison: realised volatility over the last month ${f.lastMonth}%, RiskMetrics EWMA estimate ${f.ewma}%.`,
-    `Warning level: ${f.level.name} (${f.level.note}).`,
+    `Reading on the dial: ${f.level.name} (${f.level.note}).`,
     `One standard deviation for the week is ${pct(f.weekSd)}: in about two weeks out of three the close a week from now should land between ${p(f.range68[0])} and ${p(f.range68[1])}; in about 19 out of 20, between ${p(f.range95[0])} and ${p(f.range95[1])}.`,
     f.hitRate ? `Of ${f.hitRate.n} past forecasts for this stock, ${pct(f.hitRate.within68)} saw the following week close inside the one-standard-deviation range (68% would be exact).` : "",
     `The forecast says how much the price is likely to move, not which way.`,

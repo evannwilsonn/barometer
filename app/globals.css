@@ -1,77 +1,91 @@
 @import "tailwindcss";
 
-/* Coastal-station palette: fog, chart paper, deep-water ink and storm-flag red. */
+/* An aneroid barometer: porcelain dial, lacquered merlot case, copper set hand, blacked steel needle. */
 :root {
-  --fog: #e4e9e7;
-  --paper: #f7f9f8;
-  --ink: #10202b;
-  --soft: #3b4a54;
-  --faint: #56656f;
-  --line: #c6d0cd;
-  --flag: #c8102e;
-  --sea: #1f5c9e;
-  --ochre: #a8670a;
-  --band: #cfdfee;
-  --band-2: #e7eff6;
+  --wall: #ece3dd;
+  --porcelain: #fbf8f3;
+  --case: #5c1621;
+  --case-ink: #f6ece6;
+  --ink: #1d1513;
+  --soft: #4a3d39;
+  --faint: #6a5c57;
+  --rule: #ddcfc7;
+  --merlot: #7a1f2e;
+  --copper: #a8491f;
+  --needle: #1d1513;
+  --line: #963044;
+  --band: #ecd5d0;
+  --band-2: #f5e9e5;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --fog: #0b1418;
-    --paper: #132026;
-    --ink: #e6eef0;
-    --soft: #b9c7cc;
-    --faint: #93a3a9;
-    --line: #2a3a41;
-    --flag: #ef3b4f;
-    --sea: #5b95d6;
-    --ochre: #bf7f22;
-    --band: #22415e;
-    --band-2: #19303f;
+    --wall: #120a0b;
+    --porcelain: #211517;
+    --case: #3a0f16;
+    --case-ink: #f6ece6;
+    --ink: #f3e9e4;
+    --soft: #cdbcb6;
+    --faint: #a8968f;
+    --rule: #3c2a2c;
+    --merlot: #e9a0aa;
+    --copper: #e3925f;
+    --needle: #f3e9e4;
+    --line: #d2687a;
+    --band: #4a2328;
+    --band-2: #321b1e;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --fog: #0b1418;
-  --paper: #132026;
-  --ink: #e6eef0;
-  --soft: #b9c7cc;
-  --faint: #93a3a9;
-  --line: #2a3a41;
-  --flag: #ef3b4f;
-  --sea: #5b95d6;
-  --ochre: #bf7f22;
-  --band: #22415e;
-  --band-2: #19303f;
+  --wall: #120a0b;
+  --porcelain: #211517;
+  --case: #3a0f16;
+  --case-ink: #f6ece6;
+  --ink: #f3e9e4;
+  --soft: #cdbcb6;
+  --faint: #a8968f;
+  --rule: #3c2a2c;
+  --merlot: #e9a0aa;
+  --copper: #e3925f;
+  --needle: #f3e9e4;
+  --line: #d2687a;
+  --band: #4a2328;
+  --band-2: #321b1e;
   color-scheme: dark;
 }
 
 @theme inline {
-  --color-fog: var(--fog);
-  --color-paper: var(--paper);
+  --color-wall: var(--wall);
+  --color-porcelain: var(--porcelain);
+  --color-case: var(--case);
+  --color-case-ink: var(--case-ink);
   --color-ink: var(--ink);
   --color-soft: var(--soft);
   --color-faint: var(--faint);
-  --color-line: var(--line);
-  --color-flag: var(--flag);
-  --color-sea: var(--sea);
-  --color-ochre: var(--ochre);
+  --color-rule: var(--rule);
+  --color-merlot: var(--merlot);
+  --color-copper: var(--copper);
   --color-band: var(--band);
   --color-band-2: var(--band-2);
-  --font-display: var(--font-saira);
-  --font-serif: var(--font-literata);
-  --font-mono: var(--font-redhat-mono);
+  --font-engraved: var(--font-marcellus);
+  --font-serif: var(--font-newsreader);
+  --font-mono: var(--font-spline-mono);
 }
 
 html { -webkit-text-size-adjust: 100%; }
-body { background: var(--fog); color: var(--ink); font-family: var(--font-literata), Georgia, serif; }
-:focus-visible { outline: 2px solid var(--sea); outline-offset: 3px; }
-.tabular { font-variant-numeric: tabular-nums; }
-.label { font-family: var(--font-redhat-mono), ui-monospace, monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+body { background: var(--wall); color: var(--ink); font-family: var(--font-newsreader), Georgia, serif; }
+:focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+.tabular { font-variant-numeric: tabular-nums lining-nums; }
+.label { font-family: var(--font-spline-mono), ui-monospace, monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.engraved { font-family: var(--font-marcellus), Georgia, serif; letter-spacing: 0.06em; text-transform: uppercase; }
 
-/* The backtest chart */
-.chart text { font: 400 11.5px var(--font-redhat-mono), ui-monospace, monospace; fill: var(--faint); }
-.chart .grid line { stroke: var(--line); }
-.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--ink); color: var(--paper); font: 400 13px/1.45 var(--font-redhat-mono), monospace; padding: 8px 10px; border-radius: 4px; white-space: pre-line; }
+/* Dial and charts */
+.dial text { font-family: var(--font-marcellus), Georgia, serif; }
+.chart text { font: 400 11.5px var(--font-spline-mono), ui-monospace, monospace; fill: var(--faint); }
+.chart .grid line { stroke: var(--rule); }
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--ink); color: var(--porcelain); font: 400 13px/1.45 var(--font-spline-mono), monospace; padding: 8px 10px; border-radius: 4px; white-space: pre-line; }
 
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+@media (prefers-reduced-motion: no-preference) {
+  .needle { transition: transform 900ms cubic-bezier(.2, .9, .25, 1.15); }
+}
