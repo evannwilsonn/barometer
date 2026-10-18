@@ -1,0 +1,9 @@
+node_modules/
+.next/
+next-env.d.ts
+data/raw/
+.env*
+!.env.example
+*.tsbuildinfo
+.vercel/
+.impeccable/
