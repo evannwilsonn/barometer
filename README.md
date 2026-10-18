@@ -6,7 +6,7 @@ Readers can also keep a **logbook** of the stocks they follow and get a morning 
 
 It forecasts the **size** of moves, not their direction. Whether a stock goes up or down next week is close to a coin flip, and nothing here claims otherwise. Nothing here is investment advice.
 
-**Saved page:** [evannwilsonn.github.io/barometer](https://evannwilsonn.github.io/barometer/) is a frozen AAPL forecast with the accuracy results. The live app needs the server below.
+**Live app:** [barometer-three.vercel.app](https://barometer-three.vercel.app), on Vercel. **Saved page:** [evannwilsonn.github.io/barometer](https://evannwilsonn.github.io/barometer/) is a frozen AAPL forecast with the accuracy results.
 
 ## 1. Problem
 
