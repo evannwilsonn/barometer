@@ -59,34 +59,54 @@ export function guardNote(text: string): string {
   return sentences.filter(s => !ADVICE.test(s)).join(" ").trim();
 }
 
-/** A note from Groq, or null when no key is set or the call fails (the page then shows its own). */
-export async function writeNote(f: Forecast, key: string | undefined, model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile") {
+/**
+ * Groq models to try, in order: GROQ_MODEL if set, then current production models. Not every
+ * account can use every model, so a "model not found" moves on to the next, and the first one
+ * that answers is remembered for the life of the server.
+ */
+const MODELS = [process.env.GROQ_MODEL, "llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant", "openai/gpt-oss-20b"]
+  .filter((m, i, a): m is string => Boolean(m) && a.indexOf(m) === i);
+let working: string | null = null;
+
+/** One chat completion from Groq, or null when no key is set or every model fails. */
+export async function groqChat(messages: { role: "system" | "user"; content: string }[], maxTokens: number, temperature: number, timeoutMs: number) {
+  const key = process.env.GROQ_API_KEY;
   if (!key) return null;
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model,
-        temperature: 0.2,
-        max_tokens: 180,
-        messages: [{ role: "system", content: SYSTEM }, { role: "user", content: factsFor(f) }],
-      }),
-      signal: AbortSignal.timeout(12000),
-    });
-    if (!res.ok) {
-      // Status and Groq's error message only; the key is never logged.
-      const err = await res.json().catch(() => null);
-      console.error(`groq ${res.status}: ${err?.error?.message ?? res.statusText}`);
+  for (const model of working ? [working] : MODELS) {
+    try {
+      // gpt-oss models reason before answering; keep that short and leave room for the answer.
+      const reasoning = model.startsWith("openai/gpt-oss") ? { reasoning_effort: "low", include_reasoning: false } : {};
+      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ model, temperature, max_tokens: reasoning.reasoning_effort ? maxTokens + 600 : maxTokens, messages, ...reasoning }),
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      if (!res.ok) {
+        // Status and Groq's error message only; the key is never logged.
+        const err = await res.json().catch(() => null);
+        console.error(`groq ${model} ${res.status}: ${err?.error?.message ?? res.statusText}`);
+        if (res.status === 404 || res.status === 400) continue; // this account can't use this model
+        return null;
+      }
+      const body = await res.json();
+      const text = String(body.choices?.[0]?.message?.content ?? "").trim();
+      if (!text) continue;
+      working = model;
+      return { text, model };
+    } catch (e) {
+      console.error(`groq ${model} request failed: ${(e as Error).name}`);
       return null;
     }
-    const body = await res.json();
-    const text = guardNote(String(body.choices?.[0]?.message?.content ?? ""));
-    return text ? { text, model } : null;
-  } catch (e) {
-    console.error(`groq request failed: ${(e as Error).name}`);
-    return null;
   }
+  return null;
+}
+
+/** A note from Groq, or null when no key is set or the call fails (the page then shows its own). */
+export async function writeNote(f: Forecast) {
+  const r = await groqChat([{ role: "system", content: SYSTEM }, { role: "user", content: factsFor(f) }], 180, 0.2, 12000);
+  const text = r ? guardNote(r.text) : "";
+  return r && text ? { text, model: r.model } : null;
 }
 
 /** The fallback note, written from the same numbers without a language model. */

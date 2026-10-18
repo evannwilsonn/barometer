@@ -15,7 +15,7 @@ export async function report(raw: string): Promise<Report> {
   const key = process.env.TWELVE_DATA_API_KEY;
   const candles = await dailyCandles(symbol, key || "demo");
   const f = forecast(symbol, candles);
-  const written = await writeNote(f, process.env.GROQ_API_KEY);
+  const written = await writeNote(f);
   return {
     forecast: f,
     note: written ? { text: written.text, by: `Written by ${prettyModel(written.model)} from the numbers above` } : { text: plainNote(f), by: "Written from the numbers above" },
@@ -34,4 +34,5 @@ export async function reading(symbol: string): Promise<Reading> {
 }
 
 const prettyModel = (m: string) =>
-  m.replace(/^llama-(\d)\.(\d)-(\d+)b.*$/i, "Llama $1.$2 $3B").replace(/^llama-(\d)-(\d+)b.*$/i, "Llama $1 $2B");
+  m.replace(/^openai\/gpt-oss-(\d+)b$/i, "GPT-OSS $1B")
+    .replace(/^llama-(\d)\.(\d)-(\d+)b.*$/i, "Llama $1.$2 $3B").replace(/^llama-(\d)-(\d+)b.*$/i, "Llama $1 $2B");

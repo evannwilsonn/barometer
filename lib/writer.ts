@@ -3,35 +3,11 @@
 // Same Groq model and the same advice filter as the note under each forecast.
 
 import type { Article } from "./finnhub";
-import { guardNote } from "./sources";
+import { groqChat, guardNote } from "./sources";
 
 async function groq(system: string, user: string, maxTokens: number): Promise<string | null> {
-  const key = process.env.GROQ_API_KEY;
-  if (!key) return null;
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-        temperature: 0.3,
-        max_tokens: maxTokens,
-        messages: [{ role: "system", content: system }, { role: "user", content: user }],
-      }),
-      signal: AbortSignal.timeout(20000),
-    });
-    if (!res.ok) {
-      // Status and Groq's error message only; the key is never logged.
-      const err = await res.json().catch(() => null);
-      console.error(`groq ${res.status}: ${err?.error?.message ?? res.statusText}`);
-      return null;
-    }
-    const body = await res.json();
-    return String(body.choices?.[0]?.message?.content ?? "").trim() || null;
-  } catch (e) {
-    console.error(`groq request failed: ${(e as Error).name}`);
-    return null;
-  }
+  const r = await groqChat([{ role: "system", content: system }, { role: "user", content: user }], maxTokens, 0.3, 20000);
+  return r?.text ?? null;
 }
 
 /** Runs the advice filter over each paragraph, keeping the blank lines between them. */
