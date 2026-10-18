@@ -129,7 +129,7 @@ npm run dev                                                     # the app
 npx inngest-cli@latest dev -u http://localhost:3000/api/inngest # the job runner, with INNGEST_DEV=1 in .env.local
 ```
 
-**Tested here** without any real accounts, using containers: MongoDB 8 (standalone, so `MONGODB_TRANSACTIONS=false`; Atlas doesn't need it), the Inngest dev server, and Mailpit as the mail server (`SMTP_URL=smtp://localhost:1025`). A browser script signs up, adds AAPL from its reading, opens the logbook, and requests a dispatch. Both the welcome email and the dispatch arrive, with no console errors and no sideways scrolling at 390 px. `lib/dispatch.test.ts` checks the weather-change lines and that every name, headline, URL and model sentence is escaped in the email. On Vercel, add the variables above and connect the Inngest integration, which syncs `/api/inngest`.
+**Tested here** without any real accounts, using containers: MongoDB 8 (standalone, so `MONGODB_TRANSACTIONS=false`; Atlas doesn't need it), the Inngest dev server, and Mailpit as the mail server (`SMTP_URL=smtp://localhost:1025`). A browser script signs up, adds AAPL from its reading, opens the logbook, and requests a dispatch. Both the welcome email and the dispatch arrive, with no console errors and no sideways scrolling at 390 px. `lib/dispatch.test.ts` checks the weather-change lines and that every name, headline, URL and model sentence is escaped in the email. On Vercel, the live app uses the MongoDB Atlas and Inngest marketplace integrations: each creates a free account and adds its variables (`MONGODB_URI`, `INNGEST_EVENT_KEY`, `INNGEST_SIGNING_KEY`) to the project. The other keys are added by hand under Settings → Environment Variables.
 
 The page shows:
 
