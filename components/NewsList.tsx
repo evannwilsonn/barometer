@@ -32,7 +32,7 @@ export function NewsList({ symbol }: { symbol: string }) {
           ))}
         </ol>
       )}
-      <p className="mt-2 text-[13px] text-faint">Headlines from Finnhub, as published. Barometer doesn&apos;t use news in its forecast.</p>
+      <p className="mt-2 text-[13px] text-faint">Headlines from <a href="https://finnhub.io" className="underline underline-offset-2">Finnhub</a>, as published by their sources. Barometer doesn&apos;t use news in its forecast.</p>
     </section>
   );
 }

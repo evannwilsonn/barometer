@@ -8,9 +8,8 @@ export const authClient = createAuthClient({
   plugins: [inferAdditionalFields({
     user: {
       country: { type: "string", required: false },
-      investmentGoals: { type: "string", required: false },
-      riskTolerance: { type: "string", required: false },
       preferredIndustry: { type: "string", required: false },
+      termsAcceptedAt: { type: "string", required: false },
     },
   })],
 });

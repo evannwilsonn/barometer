@@ -121,6 +121,7 @@ function Vernier({ f }: { f: Forecast }) {
       <p className="mt-3 text-[16px] leading-relaxed text-soft">
         Closed at <b className="tabular text-ink">{fmt(f.price)}</b> on {f.asOf}. In about two weeks out of three it should close inside the darker band a week from now (±{(f.weekSd * 100).toFixed(1)}%); in about 19 out of 20, inside the lighter one.
       </p>
+      <p className="mt-2 text-[13px] text-faint">Data provided by <a href="https://twelvedata.com" className="underline underline-offset-2">Twelve Data</a>. Not investment advice.</p>
     </div>
   );
 }

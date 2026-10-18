@@ -99,12 +99,12 @@ npm run dev                   # http://localhost:3000
 
 The second half of the app follows JavaScript Mastery's tutorial [*Build a Stock Market App*](https://youtu.be/gu4pafNCXng) (Signalist): sign-in with Better Auth and MongoDB, a ⌘K stock search, TradingView charts, company news, and Inngest jobs that send email through Nodemailer. Those parts are rebuilt here around the forecast rather than copied:
 
-- **Accounts:** email and password through Better Auth, with users and sessions in MongoDB. Sign-up asks the tutorial's four profile questions (country, investment goal, risk tolerance, the industry you follow), and they're stored on the user.
+- **Accounts:** email and password through Better Auth, with users and sessions in MongoDB. An address must be confirmed before the account can sign in, so the site never emails someone who didn't sign up. Readers can reset a forgotten password and delete their account (which deletes their logbook). The tutorial also asked for investment goals and risk tolerance; Barometer asks only for country and, optionally, an industry (see Legal below).
 - **Search:** ⌘K / Ctrl-K opens a search over Finnhub's US listings. Picking a stock takes its reading.
 - **Logbook:** the tutorial left the watchlist as homework (its button only toggled local state, and there was no page). Here a reading has an *Add to your logbook* button, and `/logbook` lists every saved stock with this week's reading, last month, the likely close and recent headlines. Every logbook action checks the session on the server, and a reader only touches their own entries. `proxy.ts` (Next 16's renamed middleware) sends signed-out visitors to sign in.
 - **Today's weather map:** the home page carries the tutorial's four market widgets from TradingView, dressed in the instrument's colours: an S&P 500 heatmap by sector ("Pressure map"), a year of the main indices and three sectors, the market wire, and a quotes board. They show what the market has done; the dial shows how rough one stock's next week is likely to be. Below them, a panel shows what an account adds, using the real reading on the page for its sample dispatch.
 - **Chart and news:** a TradingView advanced chart in the instrument's colours and the stock's last five days of Finnhub headlines sit under the barograph. Headlines are shown as published; the forecast doesn't use them.
-- **Welcome email:** on sign-up, Better Auth's `user.create.after` hook sends an `app/user.created` event to Inngest. Inngest asks Groq for two or three sentences from the profile answers, runs them through the same advice filter as the forecast note, and emails them. Without a Groq key, the note is written from the answers in code.
+- **Welcome email:** when a reader confirms their email, Better Auth's `afterEmailVerification` hook sends an `app/user.verified` event to Inngest. Inngest asks Groq for two sentences on using the readings for the industry they picked (Groq sees only the industry, never the name or email), runs them through the same advice filter as the forecast note, and emails them. Without a Groq key or an industry, the note is written in code.
 - **Morning dispatch:** an Inngest cron at 8:30 New York time on weekdays (`TZ=America/New_York 30 8 * * 1-5`), and a button on the logbook page that queues one for the signed-in reader only. Each stock gets one reading however many readers follow it, pausing after every eight for Twelve Data's free rate limit. Each reader's email has their readings, a line for any stock whose dial word changed since the last dispatch (Fair to Change, say), and Groq's summary of up to six headlines with the links. Every number in the email comes from code, and only the news paragraphs are written by the model. Everything in the email is HTML-escaped, including the model's text.
 
 The tutorial uses Gemini for the AI parts and keeps the Finnhub key in a `NEXT_PUBLIC_` variable, which ships it to the browser. Here Groq stays the one model provider, and every key stays on the server. The tutorial's middleware also sat in `middleware/index.ts`, where Next.js never loads it.
@@ -138,6 +138,19 @@ The page shows:
 - **Price range:** a bar for the likely closing price a week out.
 - **Note:** the written explanation.
 - **Backtest:** the model's past forecasts for that stock against what each following week turned out to be.
+
+## Legal
+
+Barometer is public, has accounts and sends email, so these were checked. This is a summary of what was done, not legal advice.
+
+- **Not an investment adviser.** US law excludes publishers of impersonal, disinterested, generally available content from the definition of an investment adviser (*Lowe v. SEC*, 1985; applied to an online platform's filters and alerts in the 2024 *Seeking Alpha* decision). Barometer stays inside that: every reader sees the same forecast for a stock, the logbook and dispatch only filter that content by the stocks a reader picks, nothing recommends buying or selling, and the language model's text passes an advice filter. For that reason sign-up no longer asks about investment goals or risk tolerance, and nothing is tailored to a reader's finances. Every page and email says it isn't investment advice.
+- **Terms and privacy** at `/legal`: no-advice and AI-accuracy disclaimers, no warranty, limited liability, 18+ accounts, Florida law, and a privacy policy with what California's CalOPPA asks for (what's collected, who receives it, how to change or delete it, how Do Not Track is handled, how changes are announced, the effective date). Sign-up needs a box ticked agreeing to both, and the time is stored.
+- **Email (CAN-SPAM).** The dispatch has no advertising, but every one carries a signed one-click unsubscribe link and `List-Unsubscribe` / `List-Unsubscribe-Post` headers, and the logbook has an on/off switch. Only confirmed addresses get mail.
+- **Your data.** Readers can delete their account, logbook and sessions themselves. No analytics or ad cookies; one session cookie. Groq never receives names or emails; the data APIs receive only ticker symbols.
+- **Data licenses.** Twelve Data asks for "Data provided by Twelve Data" near publicly shown data, and that credit is under every reading and in the footer; Finnhub and TradingView are credited too, and TradingView's widget branding is left as TradingView ships it. Their free plans are for non-commercial use, and Barometer is free, non-commercial and ad-free. Twelve Data's terms say public display needs to be authorised by your plan, so for a portfolio site that stays up it's worth asking them in writing.
+- **The tutorial's code** has no open-source license, so none of it is copied here; Barometer's versions were written from scratch, following the tutorial's feature list.
+
+Set `CONTACT_EMAIL` to the address the legal page should show; without it the sending address is used.
 
 ## Reproducing the numbers
 

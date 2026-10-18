@@ -4,7 +4,8 @@
 // Every logbook action checks the session; a reader only ever touches their own entries.
 
 import { revalidatePath } from "next/cache";
-import { currentUser } from "./auth";
+import { ObjectId } from "mongodb";
+import { currentUser, users } from "./auth";
 import { logbook } from "./db";
 import { companyName, finnhubOn, news, POPULAR, search, type Article, type Hit } from "./finnhub";
 import { inngest } from "./inngest/client";
@@ -57,6 +58,15 @@ export async function setInLogbook(raw: string, add: boolean): Promise<Result> {
   }
   revalidatePath("/logbook");
   return { ok: true, inLogbook: add };
+}
+
+/** Turns the morning dispatch on or off for the signed-in reader. */
+export async function setDispatch(on: boolean): Promise<{ ok: boolean }> {
+  const user = await currentUser();
+  if (!user) return { ok: false };
+  await users().updateOne({ _id: new ObjectId(user.id) }, { $set: { dispatch: on } });
+  revalidatePath("/logbook");
+  return { ok: true };
 }
 
 /** Queues today's dispatch for the signed-in reader only (the morning run sends everyone's). */

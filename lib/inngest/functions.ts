@@ -1,25 +1,27 @@
 // The two background jobs.
 //
-// welcome:  on sign-up, a short note written from the reader's answers, emailed.
+// welcome:  once a reader confirms their email, a short welcome note, emailed.
 // dispatch: each weekday morning (and on request from the logbook page), every reader with
 //           stocks in their logbook gets that day's readings, any change of weather since the
-//           last dispatch, and a summary of the news on those stocks.
+//           last dispatch, and a summary of the news on those stocks. Only confirmed
+//           addresses that haven't unsubscribed get the morning run; every email carries
+//           a one-click unsubscribe link.
 
 import { ObjectId } from "mongodb";
 import { inngest } from "./client";
 import { db, logbook } from "../db";
 import { news, type Article } from "../finnhub";
-import { esc, frame, paragraphs, send } from "../mail";
+import { esc, frame, paragraphs, send, unsubscribeUrl } from "../mail";
 import { reading, type Reading } from "../station";
 import { newsSummary, welcomeNote, type Profile } from "../writer";
 
 export const welcome = inngest.createFunction(
-  { id: "welcome-email", triggers: [{ event: "app/user.created" }] },
+  { id: "welcome-email", triggers: [{ event: "app/user.verified" }] },
   async ({ event, step }) => {
     const p = event.data as Profile & { email: string };
     const note = await step.run("write-welcome-note", () => welcomeNote(p));
     const body = paragraphs(note.text) +
-      `<p style="margin:18px 0 0;font:15px/1.6 Georgia,serif;color:#4a3d39">Search for a stock, take a reading, and add it to your logbook. Each weekday morning you'll get a dispatch with your stocks' readings and their news.</p>`;
+      `<p style="margin:18px 0 0;font:15px/1.6 Georgia,serif;color:#4a3d39">Once your logbook has a stock in it, a dispatch with your stocks' readings and their news arrives each weekday morning. You can switch it off from your logbook page or from any dispatch.</p>`;
     return step.run("send-welcome-email", () =>
       send(p.email, "Your barometer is set up", frame("Your barometer is set up", body), note.text));
   },
@@ -44,7 +46,10 @@ export const dispatch = inngest.createFunction(
         { $group: { _id: "$userId", entries: { $push: { symbol: "$symbol", company: "$company", lastLevel: "$lastLevel" } } } },
       ]).toArray();
       const ids = groups.map(g => g._id).filter(ObjectId.isValid).map(id => new ObjectId(id));
-      const users = await db().collection<{ _id: ObjectId; email: string; name: string }>("user").find({ _id: { $in: ids } }).toArray();
+      // Confirmed addresses only; the morning run also skips readers who switched the dispatch off
+      // (asking for one from the logbook page still sends it).
+      const users = await db().collection<{ _id: ObjectId; email: string; name: string; emailVerified?: boolean; dispatch?: boolean }>("user")
+        .find({ _id: { $in: ids }, emailVerified: true, ...(only ? {} : { dispatch: { $ne: false } }) }).toArray();
       const byId = new Map(users.map(u => [u._id.toHexString(), u]));
       return groups.flatMap(g => {
         const u = byId.get(g._id);
@@ -75,7 +80,8 @@ export const dispatch = inngest.createFunction(
         const summary = await newsSummary(articles);
         const { html, text } = compose(r, readings, articles, summary?.text ?? null);
         const date = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "America/New_York" });
-        const out = await send(r.email, `Morning dispatch · ${date}`, frame(`Morning dispatch · ${date}`, html), text);
+        const unsub = unsubscribeUrl(r.id);
+        const out = await send(r.email, `Morning dispatch · ${date}`, frame(`Morning dispatch · ${date}`, html, unsub), `${text}\n\nStop these emails: ${unsub}`, unsub);
         // Remember today's weather, to report changes next time.
         const c = await logbook();
         await Promise.all(r.entries.map(e => {

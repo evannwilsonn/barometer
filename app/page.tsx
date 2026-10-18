@@ -2,6 +2,7 @@ import evalJson from "@/results/eval.json";
 import { report, type Report } from "@/lib/station";
 import { Station } from "./station";
 import { Masthead } from "@/components/Masthead";
+import { Footer } from "@/components/Footer";
 import { MarketWeather } from "@/components/MarketWeather";
 import { LogbookShowcase } from "@/components/LogbookShowcase";
 import { accountsOn, currentUser } from "@/lib/auth";
@@ -108,10 +109,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
       <MarketWeather />
       <LogbookShowcase f={initial?.forecast ?? null} accounts={accountsOn()} signedIn={Boolean(user)} />
       <Certificate />
-      <footer className="mt-14 grid grid-cols-[minmax(0,1fr)] gap-4 border-t border-rule pt-6 text-[14px] text-faint sm:grid-cols-2">
-        <p>Prices from Twelve Data, headlines from Finnhub, charts by TradingView. Notes written by a language model on Groq from the numbers shown, with a check that drops any advice. Nothing here is investment advice. <a href="https://github.com/evannwilsonn/barometer" className="underline underline-offset-4">Source on GitHub</a>.</p>
-        <p>Barometer is project 11 of Evan Wilson&apos;s AI project run. Set in Marcellus, Newsreader and Spline Sans Mono.</p>
-      </footer>
+      <Footer />
     </main>
   );
 }

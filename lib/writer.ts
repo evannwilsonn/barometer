@@ -13,24 +13,20 @@ async function groq(system: string, user: string, maxTokens: number): Promise<st
 /** Runs the advice filter over each paragraph, keeping the blank lines between them. */
 const guarded = (text: string) => text.split(/\n\s*\n/).map(guardNote).filter(Boolean).join("\n\n");
 
-export type Profile = { name: string; country?: string; investmentGoals?: string; riskTolerance?: string; preferredIndustry?: string };
+export type Profile = { name: string; preferredIndustry?: string };
 
-const WELCOME = `You write the opening of a welcome email for Barometer, a site that forecasts how much a US stock is likely to move next week (the size of moves, not their direction).
-Write two or three sentences to the new reader, by first name, that connect what Barometer does to what they told us. Plain text, no greeting line, no sign-off, no headings, no emoji.
-Never recommend stocks or tell them to buy, sell or hold anything, and don't promise returns. Don't start with "Welcome".`;
+// The model sees only the industry a reader picked, never their name or email: code adds the
+// name. And it explains how Barometer works; it never suggests what to look at or own.
+const WELCOME = `You write two sentences for a welcome email from Barometer, a free site that forecasts how much a US stock is likely to move next week (the size of moves, not their direction).
+The reader said the industry they follow most is given below. Explain, in plain words, how they could use the readings to see how rough next week may be for stocks they already follow in that industry.
+Plain text only, no greeting, no sign-off, no emoji. Never name or suggest particular stocks, never tell anyone to buy, sell or hold anything, and don't promise returns.`;
 
 export async function welcomeNote(p: Profile): Promise<{ text: string; byModel: boolean }> {
   const first = p.name.split(/\s+/)[0] || p.name;
-  const facts = [`First name: ${first}`, p.country && `Country: ${p.country}`, p.investmentGoals && `Investment goal: ${p.investmentGoals}`,
-    p.riskTolerance && `Risk tolerance: ${p.riskTolerance}`, p.preferredIndustry && `Industry they follow most: ${p.preferredIndustry}`].filter(Boolean).join("\n");
-  const written = await groq(WELCOME, facts, 160);
+  const plain = "Barometer reads the weather for stocks: how much each one is likely to move over the next five trading days, and the range its price is likely to close in. Search for any stock you already follow, take a reading, and add it to your logbook.";
+  const written = p.preferredIndustry ? await groq(WELCOME, `Industry they follow most: ${p.preferredIndustry}`, 160) : null;
   const text = written ? guarded(written) : "";
-  if (text) return { text, byModel: true };
-  const risk = p.riskTolerance === "Low" ? "If you'd rather avoid rough weeks, the dial shows which of your stocks are heading into one."
-    : p.riskTolerance === "High" ? "If you can live with rough weeks, the dial shows how rough the next one is likely to be, and the range shows how far the price may swing."
-    : "The dial shows how rough the next week is likely to be, and the range shows how far the price may swing.";
-  const industry = p.preferredIndustry ? ` Start with a few ${p.preferredIndustry.toLowerCase()} names you follow and add them to your logbook.` : "";
-  return { text: `${first}, Barometer reads the weather for stocks: how much each one is likely to move over the next five trading days. ${risk}${industry}`, byModel: false };
+  return { text: `Hi ${first}, your email is confirmed and your logbook is open.\n\n${text || plain}`, byModel: Boolean(text) };
 }
 
 const DISPATCH = `You summarise recent news for a reader who follows the stocks named in the articles. You get a list of articles (headline, source, summary).

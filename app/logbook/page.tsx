@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Masthead } from "@/components/Masthead";
-import { DispatchButton, RemoveButton } from "@/components/LogbookControls";
+import { Footer } from "@/components/Footer";
+import { AccountControls, DispatchButton, RemoveButton } from "@/components/LogbookControls";
 import { currentUser } from "@/lib/auth";
 import { logbook } from "@/lib/db";
 import { finnhubOn, news } from "@/lib/finnhub";
@@ -109,6 +110,8 @@ export default async function Page() {
           </ol>
         </section>
       )}
+      <AccountControls dispatchOn={(user as { dispatch?: boolean }).dispatch !== false} email={user.email} />
+      <Footer />
     </main>
   );
 }

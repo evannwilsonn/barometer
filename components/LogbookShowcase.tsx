@@ -15,7 +15,7 @@ export function LogbookShowcase({ f, accounts, signedIn }: { f: Forecast | null;
           <h2 id="h-logbook" className="engraved mt-2 text-[34px] leading-none sm:text-[44px]">Keep a logbook</h2>
           <p className="mt-4 text-[17px] leading-relaxed opacity-90">Save the stocks you follow. Your logbook shows every one with this week&apos;s reading, and each weekday before the open a dispatch arrives by email: your readings, any stock whose weather has changed since the last one, and a short summary of its news.</p>
           <ul className="mt-6 space-y-2 text-[16px]">
-            {["Search any US stock with ⌘K", "Add it from its reading", "A welcome note shaped by your answers at sign-up", "The morning dispatch, or one on request"].map(t => (
+            {["Search any US stock with ⌘K", "Add it from its reading", "Switch emails off or delete your account any time", "The morning dispatch, or one on request"].map(t => (
               <li key={t} className="flex gap-3"><span className="text-copper" aria-hidden>—</span>{t}</li>
             ))}
           </ul>
