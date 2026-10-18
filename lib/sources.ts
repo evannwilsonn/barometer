@@ -74,11 +74,17 @@ export async function writeNote(f: Forecast, key: string | undefined, model = pr
       }),
       signal: AbortSignal.timeout(12000),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      // Status and Groq's error message only; the key is never logged.
+      const err = await res.json().catch(() => null);
+      console.error(`groq ${res.status}: ${err?.error?.message ?? res.statusText}`);
+      return null;
+    }
     const body = await res.json();
     const text = guardNote(String(body.choices?.[0]?.message?.content ?? ""));
     return text ? { text, model } : null;
-  } catch {
+  } catch (e) {
+    console.error(`groq request failed: ${(e as Error).name}`);
     return null;
   }
 }

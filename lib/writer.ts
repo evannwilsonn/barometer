@@ -20,10 +20,16 @@ async function groq(system: string, user: string, maxTokens: number): Promise<st
       }),
       signal: AbortSignal.timeout(20000),
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      // Status and Groq's error message only; the key is never logged.
+      const err = await res.json().catch(() => null);
+      console.error(`groq ${res.status}: ${err?.error?.message ?? res.statusText}`);
+      return null;
+    }
     const body = await res.json();
     return String(body.choices?.[0]?.message?.content ?? "").trim() || null;
-  } catch {
+  } catch (e) {
+    console.error(`groq request failed: ${(e as Error).name}`);
     return null;
   }
 }
