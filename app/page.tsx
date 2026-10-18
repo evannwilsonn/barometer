@@ -2,6 +2,8 @@ import evalJson from "@/results/eval.json";
 import { report, type Report } from "@/lib/station";
 import { Station } from "./station";
 import { Masthead } from "@/components/Masthead";
+import { MarketWeather } from "@/components/MarketWeather";
+import { LogbookShowcase } from "@/components/LogbookShowcase";
 import { accountsOn, currentUser } from "@/lib/auth";
 import { logbookSymbols } from "@/lib/actions";
 
@@ -103,6 +105,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
         <p className="text-[18px] leading-relaxed text-soft">A barometer for stocks. It forecasts how much a stock is likely to move over the next five trading days, turns that into a likely price range, and explains it in plain words. It reads the size of moves, never their direction.</p>
       </div>
       <Station key={symbol.toUpperCase()} initial={initial} initialError={initialError} accounts={accountsOn()} signedIn={Boolean(user)} saved={saved} />
+      <MarketWeather />
+      <LogbookShowcase f={initial?.forecast ?? null} accounts={accountsOn()} signedIn={Boolean(user)} />
       <Certificate />
       <footer className="mt-14 grid grid-cols-[minmax(0,1fr)] gap-4 border-t border-rule pt-6 text-[14px] text-faint sm:grid-cols-2">
         <p>Prices from Twelve Data, headlines from Finnhub, charts by TradingView. Notes written by a language model on Groq from the numbers shown, with a check that drops any advice. Nothing here is investment advice. <a href="https://github.com/evannwilsonn/barometer" className="underline underline-offset-4">Source on GitHub</a>.</p>
