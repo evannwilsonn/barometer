@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Marcellus, Newsreader, Spline_Sans_Mono } from "next/font/google";
+import { Arsenal_SC, Libre_Baskerville } from "next/font/google";
 import "./globals.css";
 
-const marcellus = Marcellus({ subsets: ["latin"], weight: "400", variable: "--font-marcellus" });
-const newsreader = Newsreader({ subsets: ["latin"], variable: "--font-newsreader", style: ["normal", "italic"] });
-const mono = Spline_Sans_Mono({ subsets: ["latin"], variable: "--font-spline-mono" });
+// The thumbnail's two faces: Libre Baskerville for headings and text (with its italic for the
+// log), Arsenal SC for the letterspaced dial words, labels and figures.
+const baskerville = Libre_Baskerville({ subsets: ["latin"], weight: ["400", "700"], style: ["normal", "italic"], variable: "--font-baskerville" });
+const arsenal = Arsenal_SC({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-arsenal" });
 
 export const metadata: Metadata = {
   title: "Barometer",
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${marcellus.variable} ${newsreader.variable} ${mono.variable}`}>
+    <html lang="en" className={`${baskerville.variable} ${arsenal.variable}`}>
       <body>{children}</body>
     </html>
   );

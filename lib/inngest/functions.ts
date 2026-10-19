@@ -21,7 +21,7 @@ export const welcome = inngest.createFunction(
     const p = event.data as Profile & { email: string };
     const note = await step.run("write-welcome-note", () => welcomeNote(p));
     const body = paragraphs(note.text) +
-      `<p style="margin:18px 0 0;font:15px/1.6 Georgia,serif;color:#4a3d39">Once your logbook has a stock in it, a dispatch with your stocks' readings and their news arrives each weekday morning. You can switch it off from your logbook page or from any dispatch.</p>`;
+      `<p style="margin:18px 0 0;font:15px/1.6 Baskerville,Georgia,serif;color:#3a4357">Once your logbook has a stock in it, a dispatch with your stocks' readings and their news arrives each weekday morning. You can switch it off from your logbook page or from any dispatch.</p>`;
     return step.run("send-welcome-email", () =>
       send(p.email, "Your barometer is set up", frame("Your barometer is set up", body), note.text));
   },
@@ -104,7 +104,7 @@ export function compose(r: Reader, readings: Record<string, Reading | { error: s
   const rows = r.entries.map(e => {
     const x = readings[e.symbol];
     if (!x || "error" in x) {
-      return { html: `<tr><td style="padding:8px 0;border-bottom:1px solid #ddcfc7;font:15px Georgia,serif">${esc(e.symbol)}</td><td colspan="3" style="padding:8px 0;border-bottom:1px solid #ddcfc7;font:14px Georgia,serif;color:#6a5c57">no reading today</td></tr>`, text: `${e.symbol}: no reading today` };
+      return { html: `<tr><td style="padding:8px 0;border-bottom:1px solid #d6c7a3;font:15px Baskerville,Georgia,serif">${esc(e.symbol)}</td><td colspan="3" style="padding:8px 0;border-bottom:1px solid #d6c7a3;font:14px Baskerville,Georgia,serif;color:#5c5f6a">no reading today</td></tr>`, text: `${e.symbol}: no reading today` };
     }
     if (e.lastLevel && e.lastLevel !== x.level) {
       const rougher = ORDER.indexOf(x.level) > ORDER.indexOf(e.lastLevel);
@@ -112,23 +112,23 @@ export function compose(r: Reader, readings: Record<string, Reading | { error: s
     }
     const range = `${x.range68[0].toFixed(2)}–${x.range68[1].toFixed(2)}`;
     return {
-      html: `<tr><td style="padding:8px 0;border-bottom:1px solid #ddcfc7;font:15px Georgia,serif"><b>${esc(x.symbol)}</b><br><span style="font-size:13px;color:#6a5c57">${esc(e.company)}</span></td>` +
-        `<td style="padding:8px 6px;border-bottom:1px solid #ddcfc7;font:17px Georgia,serif;color:#7a1f2e">${esc(x.level)}</td>` +
-        `<td align="right" style="padding:8px 6px;border-bottom:1px solid #ddcfc7;font:14px 'Courier New',monospace">${x.vol}%<br><span style="color:#6a5c57">was ${x.lastMonth}%</span></td>` +
-        `<td align="right" style="padding:8px 0;border-bottom:1px solid #ddcfc7;font:14px 'Courier New',monospace">${range}</td></tr>`,
+      html: `<tr><td style="padding:8px 0;border-bottom:1px solid #d6c7a3;font:15px Baskerville,Georgia,serif"><b>${esc(x.symbol)}</b><br><span style="font-size:13px;color:#5c5f6a">${esc(e.company)}</span></td>` +
+        `<td style="padding:8px 6px;border-bottom:1px solid #d6c7a3;font:17px Baskerville,Georgia,serif;color:#9e2b25">${esc(x.level)}</td>` +
+        `<td align="right" style="padding:8px 6px;border-bottom:1px solid #d6c7a3;font:14px 'Courier New',monospace">${x.vol}%<br><span style="color:#5c5f6a">was ${x.lastMonth}%</span></td>` +
+        `<td align="right" style="padding:8px 0;border-bottom:1px solid #d6c7a3;font:14px 'Courier New',monospace">${range}</td></tr>`,
       text: `${x.symbol} (${e.company}): ${x.level}, ${x.vol}% forecast vs ${x.lastMonth}% last month; likely close ${range}`,
     };
   });
-  const head = `<tr><td style="padding:0 0 6px;font:12px 'Courier New',monospace;color:#6a5c57">STOCK</td><td style="padding:0 6px 6px;font:12px 'Courier New',monospace;color:#6a5c57">READING</td><td align="right" style="padding:0 6px 6px;font:12px 'Courier New',monospace;color:#6a5c57">NEXT WEEK</td><td align="right" style="padding:0 0 6px;font:12px 'Courier New',monospace;color:#6a5c57">LIKELY CLOSE</td></tr>`;
+  const head = `<tr><td style="padding:0 0 6px;font:12px 'Courier New',monospace;color:#5c5f6a">STOCK</td><td style="padding:0 6px 6px;font:12px 'Courier New',monospace;color:#5c5f6a">READING</td><td align="right" style="padding:0 6px 6px;font:12px 'Courier New',monospace;color:#5c5f6a">NEXT WEEK</td><td align="right" style="padding:0 0 6px;font:12px 'Courier New',monospace;color:#5c5f6a">LIKELY CLOSE</td></tr>`;
   const first = r.name.split(/\s+/)[0];
   let html = paragraphs(`${first}, here is the weather for the ${r.entries.length === 1 ? "stock" : `${r.entries.length} stocks`} in your logbook.`);
-  if (changes.length) html += `<div style="margin:0 0 16px;padding:12px 14px;background:#ecd5d0;font:15px/1.5 Georgia,serif;color:#1d1513">${changes.map(esc).join("<br>")}</div>`;
+  if (changes.length) html += `<div style="margin:0 0 16px;padding:12px 14px;background:#e6cbbb;font:15px/1.5 Baskerville,Georgia,serif;color:#14233a">${changes.map(esc).join("<br>")}</div>`;
   html += `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 8px">${head}${rows.map(x => x.html).join("")}</table>`;
-  html += `<p style="margin:0 0 22px;font:13px/1.5 Georgia,serif;color:#6a5c57">Readings are volatility for the next five trading days, annualised, against the last month. The likely close is the range the price should end in about two weeks out of three.</p>`;
+  html += `<p style="margin:0 0 22px;font:13px/1.5 Baskerville,Georgia,serif;color:#5c5f6a">Readings are volatility for the next five trading days, annualised, against the last month. The likely close is the range the price should end in about two weeks out of three.</p>`;
   if (articles.length) {
-    html += `<p style="margin:0 0 10px;font:13px 'Courier New',monospace;letter-spacing:2px;color:#6a5c57">IN THE NEWS</p>`;
-    if (summary) html += paragraphs(summary) + `<p style="margin:-4px 0 14px;font:13px Georgia,serif;color:#6a5c57">Summary written by a language model from the headlines below.</p>`;
-    html += `<ul style="margin:0 0 12px;padding-left:18px">${articles.map(a => `<li style="margin:0 0 8px;font:15px/1.45 Georgia,serif"><a href="${esc(a.url)}" style="color:#7a1f2e">${esc(a.headline)}</a> <span style="color:#6a5c57">· ${esc(a.source)}${a.symbol ? ` · ${esc(a.symbol)}` : ""}</span></li>`).join("")}</ul>`;
+    html += `<p style="margin:0 0 10px;font:13px 'Courier New',monospace;letter-spacing:2px;color:#5c5f6a">IN THE NEWS</p>`;
+    if (summary) html += paragraphs(summary) + `<p style="margin:-4px 0 14px;font:13px Baskerville,Georgia,serif;color:#5c5f6a">Summary written by a language model from the headlines below.</p>`;
+    html += `<ul style="margin:0 0 12px;padding-left:18px">${articles.map(a => `<li style="margin:0 0 8px;font:15px/1.45 Baskerville,Georgia,serif"><a href="${esc(a.url)}" style="color:#9e2b25">${esc(a.headline)}</a> <span style="color:#5c5f6a">· ${esc(a.source)}${a.symbol ? ` · ${esc(a.symbol)}` : ""}</span></li>`).join("")}</ul>`;
   }
   const text = [`${first}, here is the weather for your logbook.`, ...changes, "", ...rows.map(x => x.text), "", summary ?? "",
     ...articles.map(a => `- ${a.headline} (${a.source}) ${a.url}`)].join("\n");

@@ -40,9 +40,9 @@ const board = (p: Palette) => ({
 
 function Panel({ title, note, children, className = "" }: { title: string; note: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={`flex min-w-0 flex-col rounded-md bg-porcelain p-5 sm:p-6 ${className}`}>
+    <div className={`flex min-w-0 flex-col rounded-md border border-hair bg-panel p-5 sm:p-6 ${className}`}>
       <div className="mb-4 border-b border-rule pb-3">
-        <h3 className="engraved text-[21px] leading-tight">{title}</h3>
+        <h3 className="display text-[21px] leading-tight">{title}</h3>
         <p className="mt-1 text-[15px] leading-relaxed text-soft">{note}</p>
       </div>
       {children}
@@ -61,10 +61,10 @@ export function MarketWeather() {
   if (!on) return null;
   return (
     <section className="mt-20" aria-labelledby="h-market">
-      <div className="mb-6 grid grid-cols-[minmax(0,1fr)] gap-3 border-t-2 border-ink pt-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end lg:gap-6">
+      <div className="mb-6 grid grid-cols-[minmax(0,1fr)] gap-3 border-t border-bezel pt-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end lg:gap-6">
         <div>
           <p className="label">Across the market</p>
-          <h2 id="h-market" className="engraved mt-2 text-[34px] leading-none sm:text-[44px]">Today&apos;s weather map</h2>
+          <h2 id="h-market" className="display mt-2 text-[34px] leading-none sm:text-[44px]">Today&apos;s weather map</h2>
         </div>
         <p className="text-[16px] leading-relaxed text-soft">The dial reads one stock&apos;s coming week. These read the whole market as it stands: where it moved today, how the main indices and sectors have run this year, and what the wire is saying.</p>
       </div>

@@ -11,7 +11,7 @@ export function RemoveButton({ symbol }: { symbol: string }) {
   return (
     <button type="button" disabled={pending} aria-label={`Remove ${symbol} from your logbook`}
       onClick={() => start(async () => { await setInLogbook(symbol, false); router.refresh(); })}
-      className="font-mono text-[12.5px] tracking-wider text-faint uppercase hover:text-merlot disabled:opacity-50">
+      className="font-mono text-[12.5px] tracking-wider text-faint uppercase hover:text-storm disabled:opacity-50">
       {pending ? "…" : "Remove"}
     </button>
   );
@@ -27,7 +27,7 @@ export function AccountControls({ dispatchOn, email }: { dispatchOn: boolean; em
   const [error, setError] = useState<string | null>(null);
   return (
     <section aria-labelledby="h-account" className="mt-14 rounded-md border border-rule p-6 sm:p-8">
-      <h2 id="h-account" className="engraved text-[22px]">Account</h2>
+      <h2 id="h-account" className="display text-[22px]">Account</h2>
       <p className="mt-1 text-[15px] text-faint">Signed in as {email}</p>
       <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-rule pt-5">
         <div>
@@ -36,7 +36,7 @@ export function AccountControls({ dispatchOn, email }: { dispatchOn: boolean; em
         </div>
         <button type="button" role="switch" aria-checked={on} disabled={pending}
           onClick={() => start(async () => { const r = await setDispatch(!on); if (r.ok) setOn(!on); })}
-          className={`rounded-sm px-4 py-2 font-mono text-[13px] tracking-wider uppercase disabled:opacity-60 ${on ? "border border-case text-merlot" : "bg-case text-case-ink"}`}>
+          className={`rounded-sm px-4 py-2 font-mono text-[13px] tracking-wider uppercase disabled:opacity-60 ${on ? "border border-btn text-storm" : "bg-btn text-btn-ink"}`}>
           {on ? "Turn off" : "Turn on"}
         </button>
       </div>
@@ -44,7 +44,7 @@ export function AccountControls({ dispatchOn, email }: { dispatchOn: boolean; em
         <p className="text-[17px]">Delete account</p>
         <p className="text-[15px] text-soft">Removes your account, your logbook and your sessions for good. Emails already sent can&apos;t be recalled.</p>
         {!confirming ? (
-          <button type="button" onClick={() => setConfirming(true)} className="mt-3 font-mono text-[13px] tracking-wider text-merlot uppercase underline underline-offset-4">Delete my account</button>
+          <button type="button" onClick={() => setConfirming(true)} className="mt-3 font-mono text-[13px] tracking-wider text-storm uppercase underline underline-offset-4">Delete my account</button>
         ) : (
           <form className="mt-3 flex flex-wrap items-end gap-3" onSubmit={e => {
             e.preventDefault();
@@ -58,11 +58,11 @@ export function AccountControls({ dispatchOn, email }: { dispatchOn: boolean; em
           }}>
             <label className="grow sm:grow-0">
               <span className="label mb-1 block">Your password, to confirm</span>
-              <input type="password" required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded-sm border border-rule bg-porcelain px-3 py-2 text-[16px] sm:w-64" />
+              <input type="password" required autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded-sm border border-rule bg-panel px-3 py-2 text-[16px] sm:w-64" />
             </label>
-            <button type="submit" disabled={pending} className="rounded-sm bg-case px-4 py-2.5 font-mono text-[13px] tracking-wider text-case-ink uppercase disabled:opacity-60">{pending ? "Deleting…" : "Delete for good"}</button>
+            <button type="submit" disabled={pending} className="rounded-sm bg-btn px-4 py-2.5 font-mono text-[13px] tracking-wider text-btn-ink uppercase disabled:opacity-60">{pending ? "Deleting…" : "Delete for good"}</button>
             <button type="button" onClick={() => { setConfirming(false); setPassword(""); }} className="py-2.5 text-[15px] text-soft underline underline-offset-4">Cancel</button>
-            {error && <p role="alert" className="w-full text-[14px] text-merlot">{error}</p>}
+            {error && <p role="alert" className="w-full text-[14px] text-storm">{error}</p>}
           </form>
         )}
       </div>
@@ -78,7 +78,7 @@ export function DispatchButton() {
     <div className="text-right">
       <button type="button" disabled={pending}
         onClick={() => start(async () => setMsg((await requestDispatch()).message))}
-        className="rounded-sm border border-case px-4 py-2 font-mono text-[13px] tracking-wider text-merlot uppercase disabled:opacity-60">
+        className="rounded-sm border border-btn px-4 py-2 font-mono text-[13px] tracking-wider text-storm uppercase disabled:opacity-60">
         {pending ? "Sending…" : "Email me today's dispatch"}
       </button>
       {msg && <p role="status" className="mt-2 text-[14px] text-soft">{msg}</p>}

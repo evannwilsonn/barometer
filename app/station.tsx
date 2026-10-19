@@ -23,67 +23,73 @@ const arc = (from: number, to: number, r: number) => {
   return `M${x1.toFixed(2)} ${y1.toFixed(2)} A${r} ${r} 0 ${to - from > 180 ? 1 : 0} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
 };
 
-/** An aneroid barometer: the needle is the forecast, the copper set hand last month's volatility. */
+/**
+ * An aneroid barometer, drawn like the thumbnail: brass bezel, cream face ruled every 1%,
+ * the zone words letterspaced along the scale, the current zone washed in translucent red,
+ * a blacked needle for the forecast and a brass set hand for last month's volatility.
+ */
 function Dial({ f }: { f: Forecast }) {
   const bounds = [...LEVELS.map(l => l.min), 100];
-  const minor = Array.from({ length: 21 }, (_, i) => i * 5);
+  const fine = Array.from({ length: 101 }, (_, i) => i);
   const major = [0, 10, 20, 30, 40, 60, 80, 100];
+  const on = LEVELS.findIndex(l => l.name === f.level.name);
   return (
     <svg viewBox="0 0 400 400" className="dial block h-auto w-full max-w-[460px]" role="img"
       aria-label={`Barometer dial for ${f.symbol}: the needle reads ${f.vol}% (${f.level.name}); the set hand marks last month at ${f.lastMonth}%.`}>
-      <circle cx={CX} cy={CY} r="196" fill="var(--case)" />
-      <circle cx={CX} cy={CY} r="182" fill="none" stroke="var(--copper)" strokeWidth="2" />
-      <circle cx={CX} cy={CY} r="176" fill="var(--porcelain)" />
+      <circle cx={CX} cy={CY} r="198" fill="var(--bezel)" />
+      <circle cx={CX} cy={CY} r="190" fill="none" stroke="var(--bezel-edge)" strokeWidth="1.6" />
+      <circle cx={CX} cy={CY} r="184" fill="var(--dial-face)" />
 
-      {/* zones: thin track, the current one drawn heavier */}
-      {LEVELS.map((l, i) => {
-        const a0 = angleOf(bounds[i]), a1 = angleOf(bounds[i + 1]);
-        const on = l.name === f.level.name;
-        return <path key={l.name} d={arc(a0 + 0.6, a1 - 0.6, 150)} fill="none" stroke={on ? "var(--merlot)" : "var(--rule)"} strokeWidth={on ? 7 : 4} />;
+      {/* the forecast's zone, a translucent red band like the thumbnail's range arc */}
+      {on >= 0 && <path d={arc(angleOf(bounds[on]), angleOf(bounds[on + 1]), 136)} fill="none" stroke="var(--dial-red)" strokeOpacity=".26" strokeWidth="14" />}
+      {/* zone boundaries: short ink marks inside the scale */}
+      {bounds.slice(1, -1).map(v => { const [x1, y1] = at(angleOf(v), 128), [x2, y2] = at(angleOf(v), 144); return <line key={v} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--dial-ink)" strokeOpacity=".45" strokeWidth="1" />; })}
+
+      {fine.map(v => {
+        const big = v % 10 === 0, mid = v % 5 === 0;
+        const [x1, y1] = at(angleOf(v), 180), [x2, y2] = at(angleOf(v), big ? 166 : mid ? 171 : 175);
+        return <line key={v} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--dial-ink)" strokeWidth={big ? 2 : mid ? 1.1 : 0.6} />;
       })}
-
-      {minor.map(v => { const [x1, y1] = at(angleOf(v), 158), [x2, y2] = at(angleOf(v), 164); return <line key={v} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--faint)" strokeWidth="1" />; })}
       {major.map(v => {
-        const [x1, y1] = at(angleOf(v), 156), [x2, y2] = at(angleOf(v), 168);
-        const [tx, ty] = at(angleOf(v), 134);
-        return <g key={v}><line x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--ink)" strokeWidth="2" /><text x={tx} y={ty + 4} textAnchor="middle" fontSize="13" fill="var(--soft)">{v}</text></g>;
+        const [tx, ty] = at(angleOf(v), 152);
+        return <text key={v} className="num" x={tx} y={ty + 4} textAnchor="middle" fontSize="11.5" fill="var(--dial-ink)">{v}%</text>;
       })}
 
       {/* the words, set along the dial like Stormy · Rain · Change · Fair; the last zone is too narrow for an arc */}
       <defs>
-        {LEVELS.map((l, i) => <path key={l.name} id={`zone-${i}`} d={arc(angleOf(bounds[i]), angleOf(bounds[i + 1]), 104)} />)}
+        {LEVELS.map((l, i) => <path key={l.name} id={`zone-${i}`} d={arc(angleOf(bounds[i]), angleOf(bounds[i + 1]), 108)} />)}
       </defs>
       {LEVELS.map((l, i) => {
-        const on = l.name === f.level.name;
-        const fill = on ? "var(--merlot)" : "var(--faint)";
+        const fill = i === on ? "var(--dial-red)" : "var(--dial-ink)";
         if (i === LEVELS.length - 1) {
           const [x, y] = at((angleOf(bounds[i]) + angleOf(100)) / 2, 108);
-          return <text key={l.name} x={x - 6} y={y + 18} textAnchor="middle" fontSize="11" letterSpacing="1.5" fill={fill}>{l.name.toUpperCase()}</text>;
+          return <text key={l.name} x={x - 6} y={y + 18} textAnchor="middle" fontSize="11" letterSpacing="2.5" fill={fill}>{l.name.toUpperCase()}</text>;
         }
+        // letterspace each word to its zone: wide in Settled, tight in the narrow Fair
+        const room = 108 * ((angleOf(bounds[i + 1]) - angleOf(bounds[i])) * Math.PI / 180) - 8, n = l.name.length;
+        const fs = [15, 13.5, 12].find(z => room - n * 0.66 * z >= n * 0.8) ?? 12;
+        const ls = Math.max(0.6, Math.min(4, (room - n * 0.66 * fs) / n));
         return (
-          <text key={l.name} fontSize="14" letterSpacing="1.5" fill={fill}>
+          <text key={l.name} fontSize={fs} letterSpacing={ls.toFixed(2)} fill={fill}>
             <textPath href={`#zone-${i}`} startOffset="50%" textAnchor="middle">{l.name.toUpperCase()}</textPath>
           </text>
         );
       })}
 
-      <text x={CX} y={CY + 52} textAnchor="middle" fontSize="30" letterSpacing="3" fill="var(--ink)">{f.symbol}</text>
-      <text x={CX} y={CY + 72} textAnchor="middle" fontSize="10" letterSpacing="2" fill="var(--faint)">% A YEAR, NEXT WEEK</text>
-      <text x={CX} y={CY + 128} textAnchor="middle" fontSize="9" letterSpacing="3" fill="var(--faint)">BAROMETER · No. 11</text>
+      <text x={CX} y={CY + 54} textAnchor="middle" fontSize="28" letterSpacing="5" fill="var(--dial-ink)">{f.symbol}</text>
+      <text className="it" x={CX} y={CY + 74} textAnchor="middle" fontSize="11" fill="var(--dial-ink)" fillOpacity=".72">% a year, next week</text>
+      <text x={CX} y={CY + 124} textAnchor="middle" fontSize="9.5" letterSpacing="3" fill="var(--dial-ink)" fillOpacity=".6">BAROMETER · No. 11</text>
 
-      {/* copper set hand: last month */}
+      {/* brass set hand: last month */}
       <g transform={`rotate(${angleOf(f.lastMonth)} ${CX} ${CY})`}>
-        <line x1={CX} y1={CY} x2={CX} y2={CY - 168} stroke="var(--copper)" strokeWidth="2.5" />
-        <path d={`M${CX - 6} ${CY - 156} L${CX} ${CY - 172} L${CX + 6} ${CY - 156} Z`} fill="var(--copper)" />
-        <circle cx={CX} cy={CY} r="16" fill="none" stroke="var(--copper)" strokeWidth="2.5" />
+        <line x1={CX} y1={CY} x2={CX} y2={CY - 132} stroke="var(--bezel)" strokeWidth="2.5" />
       </g>
 
       {/* the needle: the forecast */}
       <g className="needle" style={{ transform: `rotate(${angleOf(f.vol)}deg)`, transformOrigin: `${CX}px ${CY}px` }}>
-        <path d={`M${CX - 3.5} ${CY + 34} L${CX - 1.6} ${CY - 150} L${CX} ${CY - 162} L${CX + 1.6} ${CY - 150} L${CX + 3.5} ${CY + 34} Z`} fill="var(--needle)" />
-        <circle cx={CX} cy={CY + 30} r="9" fill="var(--needle)" />
+        <line x1={CX} y1={CY + 36} x2={CX} y2={CY - 160} stroke="var(--dial-ink)" strokeWidth="3.5" strokeLinecap="round" />
       </g>
-      <circle cx={CX} cy={CY} r="7" fill="var(--case)" stroke="var(--copper)" strokeWidth="2" />
+      <circle cx={CX} cy={CY} r="11" fill="var(--bezel)" stroke="var(--dial-ink)" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -105,7 +111,7 @@ function Vernier({ f }: { f: Forecast }) {
   for (let v = Math.ceil(min / step) * step; v <= max; v += step) ticks.push(v);
   return (
     <div>
-      <div className="relative h-16 rounded-sm border border-rule bg-porcelain">
+      <div className="relative h-16 rounded-sm border border-rule bg-panel">
         <div className="absolute inset-y-3 bg-band-2" style={{ left: `${x(lo2)}%`, width: `${x(hi2) - x(lo2)}%` }} />
         <div className="absolute inset-y-3 bg-band" style={{ left: `${x(lo1)}%`, width: `${x(hi1) - x(lo1)}%` }} />
         {ticks.map(v => <div key={v} className="absolute bottom-0 h-2 w-px bg-faint" style={{ left: `${x(v)}%` }} aria-hidden />)}
@@ -153,7 +159,7 @@ function Barograph({ f }: { f: Forecast }) {
   };
   return (
     <div className="chart">
-      <div className="mb-3 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[12.5px] text-soft">
+      <div className="mb-3 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[13.5px] text-soft">
         <span className="inline-flex items-center gap-2"><svg width="24" height="8" aria-hidden><line x1="0" y1="4" x2="24" y2="4" stroke="var(--line)" strokeWidth="2" /></svg>forecast for the next week</span>
         <span className="inline-flex items-center gap-2"><svg width="10" height="10" aria-hidden><circle cx="5" cy="5" r="3" fill="var(--soft)" /></svg>what the week turned out to be</span>
       </div>
@@ -183,8 +189,8 @@ function Instrument({ r, account }: { r: Report; account: Account }) {
   const f = r.forecast;
   const cmp = f.vol > f.lastMonth * 1.1 ? "rougher than" : f.vol < f.lastMonth * 0.9 ? "calmer than" : "about the same as";
   const readings: [string, string, string, string | null][] = [
-    ["Needle", "forecast, next 5 trading days", `${f.vol}%`, "var(--needle)"],
-    ["Set hand", "last month, as it happened", `${f.lastMonth}%`, "var(--copper)"],
+    ["Needle", "forecast, next 5 trading days", `${f.vol}%`, "var(--ink)"],
+    ["Set hand", "last month, as it happened", `${f.lastMonth}%`, "var(--bezel)"],
     ["Reference", "EWMA, the industry default", `${f.ewma}%`, null],
   ];
   return (
@@ -192,7 +198,7 @@ function Instrument({ r, account }: { r: Report; account: Account }) {
       <div className="mx-auto w-full max-w-[460px]"><Dial f={f} /></div>
       <div className="min-w-0">
         <p className="label">Reading for {f.symbol}</p>
-        <p className="engraved mt-2 text-[56px] leading-none text-merlot sm:text-[68px]">{f.level.name}</p>
+        <p className="engraved mt-2 text-[56px] leading-none text-storm sm:text-[68px]">{f.level.name}</p>
         <p className="mt-2 text-[18px] text-soft">{f.level.note}; {cmp} the last month.</p>
         {account.accounts && <div className="mt-5"><LogbookButton key={f.symbol} symbol={f.symbol} signedIn={account.signedIn} saved={account.saved.includes(f.symbol)} /></div>}
         <dl className="mt-7 divide-y divide-rule border-y border-rule">
@@ -205,7 +211,7 @@ function Instrument({ r, account }: { r: Report; account: Account }) {
                 </span>
                 <span className="block pl-7 text-[14px] text-faint">{note}</span>
               </dt>
-              <dd className="tabular engraved text-[30px] leading-none">{v}</dd>
+              <dd className="tabular display text-[30px] leading-none">{v}</dd>
             </div>
           ))}
         </dl>
@@ -221,12 +227,12 @@ function Instrument({ r, account }: { r: Report; account: Account }) {
 
 function Log({ r }: { r: Report }) {
   return (
-    <figure className="grid grid-cols-[minmax(0,1fr)] gap-3 border-y-2 border-ink py-6 sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-8">
+    <figure className="grid grid-cols-[minmax(0,1fr)] gap-3 border-y border-bezel py-6 sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-8">
       <figcaption className="label leading-relaxed">
         <span className="block text-ink">Log · {r.forecast.asOf}</span>
         {r.note.by}. Not investment advice.
       </figcaption>
-      <blockquote className="text-[21px] leading-relaxed italic">{r.note.text}</blockquote>
+      <blockquote className="text-[19px] leading-[1.75] italic sm:text-[20px]">{r.note.text}</blockquote>
     </figure>
   );
 }
@@ -266,28 +272,28 @@ export function Station({ initial, initialError, ...account }: { initial: Report
       <form className="mb-8 flex flex-wrap items-end gap-3" onSubmit={e => { e.preventDefault(); if (q.trim()) load(q.trim()); }}>
         <label className="grow sm:grow-0">
           <span className="label mb-1 block">Set the instrument to a ticker</span>
-          <input value={q} onChange={e => setQ(e.target.value.toUpperCase())} className="engraved w-full rounded-sm border border-rule bg-porcelain px-3 py-2 text-[20px] sm:w-60" autoComplete="off" spellCheck={false} aria-describedby="hint" />
+          <input value={q} onChange={e => setQ(e.target.value.toUpperCase())} className="engraved w-full rounded-sm border border-rule bg-panel px-3 py-2 text-[20px] sm:w-60" autoComplete="off" spellCheck={false} aria-describedby="hint" />
         </label>
-        <button type="submit" disabled={busy} className="rounded-sm bg-case px-5 py-[12px] font-mono text-[13px] tracking-wider text-case-ink uppercase disabled:opacity-60">{busy ? "Tapping the glass…" : "Take a reading"}</button>
+        <button type="submit" disabled={busy} className="rounded-sm bg-btn px-5 py-[12px] font-mono text-[13px] tracking-wider text-btn-ink uppercase disabled:opacity-60">{busy ? "Tapping the glass…" : "Take a reading"}</button>
         <p id="hint" className="w-full text-[14px] text-faint">US stocks and ETFs. The model was fitted on S&amp;P 500 stocks, so it reads large companies best.</p>
       </form>
-      {error && <p role="alert" className="mb-8 rounded-sm border border-merlot px-4 py-3 text-[16px]">Couldn&apos;t take that reading: {error}.</p>}
+      {error && <p role="alert" className="mb-8 rounded-sm border border-storm px-4 py-3 text-[16px]">Couldn&apos;t take that reading: {error}.</p>}
       {r?.demo && <p className="mb-8 text-[14px] text-faint">Running on the price service&apos;s public demo key, which only covers a few symbols such as AAPL.</p>}
       {r && (
         <div className={busy ? "opacity-60 transition-opacity" : "transition-opacity"}>
-          <section className="rounded-md bg-porcelain p-6 sm:p-10" aria-label="Reading"><Instrument r={r} account={account} /></section>
+          <section className="rounded-md border border-hair bg-panel p-6 sm:p-10" aria-label="Reading"><Instrument r={r} account={account} /></section>
           <div className="mt-10"><Log r={r} /></div>
           <section className="mt-12" aria-labelledby="h-baro">
             <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
-              <h2 id="h-baro" className="engraved text-[26px]">Barograph · {r.forecast.symbol}</h2>
+              <h2 id="h-baro" className="display text-[26px]">Barograph · {r.forecast.symbol}</h2>
               {r.forecast.hitRate && <p className="text-[16px] text-soft">Of {r.forecast.hitRate.n} past forecasts here, {(r.forecast.hitRate.within68 * 100).toFixed(0)}% saw the next week close inside the darker band (68% would be exact).</p>}
             </div>
-            <div className="rounded-md bg-porcelain p-5 sm:p-7"><Barograph f={r.forecast} /></div>
+            <div className="rounded-md border border-hair bg-panel p-5 sm:p-7"><Barograph f={r.forecast} /></div>
           </section>
           {mounted && (
             <section className="mt-12" aria-labelledby="h-chart">
-              <h2 id="h-chart" className="engraved mb-4 text-[26px]">Price chart · {r.forecast.symbol}</h2>
-              <div className="rounded-md bg-porcelain p-3 sm:p-4"><TradingViewChart symbol={r.forecast.symbol} /></div>
+              <h2 id="h-chart" className="display mb-4 text-[26px]">Price chart · {r.forecast.symbol}</h2>
+              <div className="rounded-md border border-hair bg-panel p-3 sm:p-4"><TradingViewChart symbol={r.forecast.symbol} /></div>
             </section>
           )}
           {mounted && <NewsList symbol={r.forecast.symbol} />}

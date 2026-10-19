@@ -2,13 +2,13 @@
 
 import { useEffect, useRef } from "react";
 
-export type Palette = { dark: boolean; porcelain: string; rule: string; line: string; faint: string; band: string; copper: string; ink: string };
+export type Palette = { dark: boolean; panel: string; rule: string; line: string; faint: string; band: string; brass: string; ink: string };
 
 /** The page's colours, read from the CSS tokens so the widgets follow light and dark mode. */
 function palette(): Palette {
   const css = (v: string) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
   const dark = matchMedia("(prefers-color-scheme: dark)").matches && document.documentElement.dataset.theme !== "light";
-  return { dark, porcelain: css("--porcelain"), rule: css("--rule"), line: css("--line"), faint: css("--faint"), band: css("--band"), copper: css("--copper"), ink: css("--ink") };
+  return { dark, panel: css("--panel"), rule: css("--rule"), line: css("--line"), faint: css("--faint"), band: css("--band"), brass: css("--brass"), ink: css("--ink") };
 }
 
 /**

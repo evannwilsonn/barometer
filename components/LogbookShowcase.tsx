@@ -11,22 +11,22 @@ export function LogbookShowcase({ f, accounts, signedIn }: { f: Forecast | null;
     <section className="mt-20 overflow-hidden rounded-md bg-case text-case-ink" aria-labelledby="h-logbook">
       <div className="grid grid-cols-[minmax(0,1fr)] gap-10 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-14">
         <div>
-          <p className="font-mono text-[12px] tracking-[0.08em] uppercase opacity-80">With an account</p>
-          <h2 id="h-logbook" className="engraved mt-2 text-[34px] leading-none sm:text-[44px]">Keep a logbook</h2>
+          <p className="font-mono text-[13px] tracking-[0.2em] text-bezel uppercase">With an account</p>
+          <h2 id="h-logbook" className="display mt-2 text-[34px] leading-none sm:text-[44px]">Keep a logbook</h2>
           <p className="mt-4 text-[17px] leading-relaxed opacity-90">Save the stocks you follow. Your logbook shows every one with this week&apos;s reading, and each weekday before the open a dispatch arrives by email: your readings, any stock whose weather has changed since the last one, and a short summary of its news.</p>
           <ul className="mt-6 space-y-2 text-[16px]">
             {["Search any US stock with ⌘K", "Add it from its reading", "Switch emails off or delete your account any time", "The morning dispatch, or one on request"].map(t => (
-              <li key={t} className="flex gap-3"><span className="text-copper" aria-hidden>—</span>{t}</li>
+              <li key={t} className="flex gap-3"><span className="text-bezel" aria-hidden>—</span>{t}</li>
             ))}
           </ul>
           <div className="mt-8">
             {!accounts ? <p className="text-[15px] opacity-80">Accounts need the live app with a database; the README shows how to run it.</p>
-              : signedIn ? <a href="/logbook" className="inline-block rounded-sm bg-porcelain px-5 py-2.5 font-mono text-[13px] tracking-wider text-merlot uppercase">Open your logbook</a>
-              : <a href="/sign-up" className="inline-block rounded-sm bg-porcelain px-5 py-2.5 font-mono text-[13px] tracking-wider text-merlot uppercase">Start a logbook</a>}
+              : signedIn ? <a href="/logbook" className="inline-block rounded-sm bg-bezel px-5 py-2.5 font-mono text-[13px] tracking-wider text-dial-ink uppercase">Open your logbook</a>
+              : <a href="/sign-up" className="inline-block rounded-sm bg-bezel px-5 py-2.5 font-mono text-[13px] tracking-wider text-dial-ink uppercase">Start a logbook</a>}
           </div>
         </div>
         {f && (
-          <figure className="min-w-0 self-center rounded-sm bg-porcelain p-5 text-ink shadow-[0_24px_48px_-30px_rgb(0_0_0/0.6)] sm:p-7">
+          <figure className="min-w-0 self-center rounded-sm bg-panel p-5 text-ink shadow-[0_24px_48px_-30px_rgb(0_0_0/0.6)] sm:p-7">
             <figcaption className="flex items-baseline justify-between gap-3 border-b border-rule pb-3">
               <span className="font-mono text-[12px] tracking-[0.08em] text-faint uppercase">Morning dispatch</span>
               <span className="font-mono text-[12px] text-faint">readings as of {f.asOf}</span>
@@ -34,9 +34,9 @@ export function LogbookShowcase({ f, accounts, signedIn }: { f: Forecast | null;
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 border-b border-rule py-4">
               <div>
                 <p className="engraved text-[20px]">{f.symbol}</p>
-                <p className="engraved mt-1 text-[26px] leading-none text-merlot">{f.level.name}</p>
+                <p className="engraved mt-1 text-[26px] leading-none text-storm">{f.level.name}</p>
                 <span className="mt-2 inline-flex gap-[3px]" aria-hidden>
-                  {LEVELS.map(l => <span key={l.name} className={`h-[6px] w-4 rounded-[1px] ${l.name === f.level.name ? "bg-merlot" : "bg-rule"}`} />)}
+                  {LEVELS.map(l => <span key={l.name} className={`h-[6px] w-4 rounded-[1px] ${l.name === f.level.name ? "bg-storm" : "bg-rule"}`} />)}
                 </span>
               </div>
               <div className="tabular text-right font-mono text-[14px]">

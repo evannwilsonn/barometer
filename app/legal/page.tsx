@@ -9,27 +9,27 @@ const UPDATED = "October 18, 2026";
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
     <section id={id} aria-labelledby={`h-${id}`} className="scroll-mt-6 border-t border-rule pt-8">
-      <h2 id={`h-${id}`} className="engraved text-[28px] leading-tight sm:text-[34px]">{title}</h2>
+      <h2 id={`h-${id}`} className="display text-[28px] leading-tight sm:text-[34px]">{title}</h2>
       <div className="mt-4 max-w-[72ch] space-y-4 text-[17px] leading-relaxed text-soft">{children}</div>
     </section>
   );
 }
 
-const H = ({ children }: { children: React.ReactNode }) => <h3 className="engraved pt-2 text-[18px] text-ink">{children}</h3>;
+const H = ({ children }: { children: React.ReactNode }) => <h3 className="display pt-2 text-[18px] text-ink">{children}</h3>;
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ unsubscribed?: string }> }) {
   const { unsubscribed } = await searchParams;
   const email = contactEmail();
-  const contact = email ? <a href={`mailto:${email}`} className="text-merlot underline underline-offset-4">{email}</a> : "the contact address on the project's GitHub page";
+  const contact = email ? <a href={`mailto:${email}`} className="text-storm underline underline-offset-4">{email}</a> : "the contact address on the project's GitHub page";
   return (
     <main className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-7">
       <Masthead />
       <div className="border-t border-rule pt-12">
         <p className="label">Last updated {UPDATED}</p>
-        <h1 className="engraved mt-2 text-[44px] leading-none sm:text-[56px]">Terms and privacy</h1>
+        <h1 className="display mt-2 text-[44px] leading-none sm:text-[56px]">Terms and privacy</h1>
         <p className="mt-4 max-w-[64ch] text-[18px] text-soft">Barometer is a free, non-commercial student project run by Evan Wilson. These pages say what it is and isn&apos;t, what it does with your information, and how to leave.</p>
-        {unsubscribed === "1" && <p role="status" className="mt-6 rounded-sm border border-merlot bg-porcelain px-4 py-3 text-[17px]">You&apos;re unsubscribed from the morning dispatch. You can turn it back on from your logbook.</p>}
-        {unsubscribed === "0" && <p role="alert" className="mt-6 rounded-sm border border-merlot bg-porcelain px-4 py-3 text-[17px]">That unsubscribe link didn&apos;t work. Sign in and switch the dispatch off from your logbook, or email {contact}.</p>}
+        {unsubscribed === "1" && <p role="status" className="mt-6 rounded-sm border border-storm bg-panel px-4 py-3 text-[17px]">You&apos;re unsubscribed from the morning dispatch. You can turn it back on from your logbook.</p>}
+        {unsubscribed === "0" && <p role="alert" className="mt-6 rounded-sm border border-storm bg-panel px-4 py-3 text-[17px]">That unsubscribe link didn&apos;t work. Sign in and switch the dispatch off from your logbook, or email {contact}.</p>}
       </div>
 
       <div className="mt-10 space-y-12">

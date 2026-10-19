@@ -31,11 +31,11 @@ export async function AuthPage({ mode }: { mode: Mode }) {
       <Masthead />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-12 border-t border-rule pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
         <div className="max-w-[480px]">
-          <h1 className="engraved text-[40px] leading-[1.05] sm:text-[52px]">{title}</h1>
+          <h1 className="display text-[40px] leading-[1.05] sm:text-[52px]">{title}</h1>
           <p className="mt-3 mb-8 text-[18px] text-soft">{lede}</p>
           <Suspense><AuthForm mode={mode} industries={mode === "sign-up" ? INDUSTRIES : undefined} /></Suspense>
         </div>
-        <aside className="self-start rounded-md border-[6px] border-double border-case bg-porcelain p-6 sm:p-9" aria-label="What a logbook gives you">
+        <aside className="self-start rounded-md border-[6px] border-double border-bezel bg-panel p-6 sm:p-9" aria-label="What a logbook gives you">
           <p className="label">With a logbook</p>
           <ol className="mt-4 divide-y divide-rule">
             {[
@@ -44,7 +44,7 @@ export async function AuthPage({ mode }: { mode: Mode }) {
               ["Yours to delete", "Your account holds your name, email, country and the stocks you save. Delete it from your logbook and all of it goes. Barometer never asks about your money and never tells you what to buy or sell."],
             ].map(([h, p], i) => (
               <li key={h} className="grid grid-cols-[36px_minmax(0,1fr)] gap-3 py-4">
-                <span className="engraved text-[22px] text-merlot">{i + 1}</span>
+                <span className="engraved text-[22px] text-storm">{i + 1}</span>
                 <div><p className="engraved text-[17px]">{h}</p><p className="mt-1 text-[16px] leading-relaxed text-soft">{p}</p></div>
               </li>
             ))}

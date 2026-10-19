@@ -16,7 +16,7 @@ const when = (t: number) => new Date(t * 1000).toLocaleDateString("en-US", { mon
 function Scale({ level }: { level: string }) {
   return (
     <span className="inline-flex gap-[3px]" aria-hidden>
-      {LEVELS.map(l => <span key={l.name} className={`h-[6px] w-4 rounded-[1px] ${l.name === level ? "bg-merlot" : "bg-rule"}`} />)}
+      {LEVELS.map(l => <span key={l.name} className={`h-[6px] w-4 rounded-[1px] ${l.name === level ? "bg-storm" : "bg-rule"}`} />)}
     </span>
   );
 }
@@ -40,28 +40,28 @@ export default async function Page() {
       <div className="flex flex-wrap items-end justify-between gap-6 border-t border-rule pt-12">
         <div>
           <p className="label">{first}&apos;s logbook</p>
-          <h1 className="engraved mt-2 text-[44px] leading-none sm:text-[56px]">The week ahead</h1>
+          <h1 className="display mt-2 text-[44px] leading-none sm:text-[56px]">The week ahead</h1>
         </div>
         {entries.length > 0 && <DispatchButton />}
       </div>
 
       {entries.length === 0 ? (
-        <section className="mt-10 rounded-md bg-porcelain p-8 sm:p-12">
-          <p className="engraved text-[26px]">Nothing logged yet</p>
+        <section className="mt-10 rounded-md border border-hair bg-panel p-8 sm:p-12">
+          <p className="display text-[26px]">Nothing logged yet</p>
           <p className="mt-3 max-w-[60ch] text-[18px] text-soft">Find a stock with the search above (or press ⌘K), take a reading, and add it to your logbook. Each weekday morning you&apos;ll get a dispatch with every stock here.</p>
         </section>
       ) : (
-        <section className="mt-10 rounded-md bg-porcelain p-4 sm:p-8" aria-label="Your stocks">
+        <section className="mt-10 rounded-md border border-hair bg-panel p-4 sm:p-8" aria-label="Your stocks">
           <div className="relative overflow-x-auto">
             <table className="tabular w-full min-w-[640px] border-collapse text-[16px]">
               <thead>
                 <tr className="label text-left">
-                  <th scope="col" className="border-b-2 border-ink py-2 pr-3 font-normal">Stock</th>
-                  <th scope="col" className="border-b-2 border-ink px-3 py-2 font-normal">Reading</th>
-                  <th scope="col" className="border-b-2 border-ink px-3 py-2 text-right font-normal">Next week</th>
-                  <th scope="col" className="border-b-2 border-ink px-3 py-2 text-right font-normal">Last month</th>
-                  <th scope="col" className="border-b-2 border-ink px-3 py-2 text-right font-normal">Likely close</th>
-                  <th scope="col" className="border-b-2 border-ink py-2 pl-3 font-normal"><span className="sr-only">Remove</span></th>
+                  <th scope="col" className="border-b-2 border-bezel py-2 pr-3 font-normal">Stock</th>
+                  <th scope="col" className="border-b-2 border-bezel px-3 py-2 font-normal">Reading</th>
+                  <th scope="col" className="border-b-2 border-bezel px-3 py-2 text-right font-normal">Next week</th>
+                  <th scope="col" className="border-b-2 border-bezel px-3 py-2 text-right font-normal">Last month</th>
+                  <th scope="col" className="border-b-2 border-bezel px-3 py-2 text-right font-normal">Likely close</th>
+                  <th scope="col" className="border-b-2 border-bezel py-2 pl-3 font-normal"><span className="sr-only">Remove</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -77,7 +77,7 @@ export default async function Page() {
                         <td colSpan={4} className="border-b border-rule px-3 py-3 text-[15px] text-faint">No reading right now: {r.error}.</td>
                       ) : (
                         <>
-                          <td className="border-b border-rule px-3 py-3"><span className="engraved block text-[19px] text-merlot">{r.level}</span><Scale level={r.level} /></td>
+                          <td className="border-b border-rule px-3 py-3"><span className="engraved block text-[19px] text-storm">{r.level}</span><Scale level={r.level} /></td>
                           <td className="border-b border-rule px-3 py-3 text-right font-mono">{r.vol}%</td>
                           <td className="border-b border-rule px-3 py-3 text-right font-mono text-soft">{r.lastMonth}%</td>
                           <td className="border-b border-rule px-3 py-3 text-right font-mono">{r.range68[0].toFixed(2)}–{r.range68[1].toFixed(2)}</td>
@@ -96,7 +96,7 @@ export default async function Page() {
 
       {articles.length > 0 && (
         <section aria-labelledby="h-news" className="mt-14">
-          <h2 id="h-news" className="engraved mb-4 text-[26px]">Dispatches for your stocks</h2>
+          <h2 id="h-news" className="display mb-4 text-[26px]">Dispatches for your stocks</h2>
           <ol className="divide-y divide-rule border-y border-rule">
             {articles.map(a => (
               <li key={a.id || a.url} className="grid grid-cols-[minmax(0,1fr)] gap-1 py-4 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-6">

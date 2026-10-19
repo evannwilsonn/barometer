@@ -9,8 +9,8 @@ const CODES = "AF AX AL DZ AS AD AO AI AQ AG AR AM AW AU AT AZ BS BH BD BB BY BE
 
 export type Mode = "sign-in" | "sign-up" | "forgot" | "reset";
 
-const input = "w-full rounded-sm border border-rule bg-porcelain px-3 py-2.5 text-[17px] focus:border-merlot";
-const primary = "w-full rounded-sm bg-case px-5 py-3 font-mono text-[14px] tracking-wider text-case-ink uppercase disabled:opacity-60";
+const input = "w-full rounded-sm border border-rule bg-panel px-3 py-2.5 text-[17px] focus:border-storm";
+const primary = "w-full rounded-sm bg-btn px-5 py-3 font-mono text-[14px] tracking-wider text-btn-ink uppercase disabled:opacity-60";
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -28,7 +28,7 @@ function Choice({ name, label, options, value, onChange }: { name: string; label
       <legend className="label mb-1.5">{label}</legend>
       <div className="flex flex-wrap gap-2">
         {options.map(o => (
-          <label key={o} className={`cursor-pointer rounded-sm border px-3 py-1.5 text-[15px] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-copper ${value === o ? "border-merlot bg-band text-ink" : "border-rule text-soft"}`}>
+          <label key={o} className={`cursor-pointer rounded-sm border px-3 py-1.5 text-[15px] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brass ${value === o ? "border-storm bg-band text-ink" : "border-rule text-soft"}`}>
             <input type="radio" name={name} value={o} checked={value === o} onChange={() => onChange(value === o ? "" : o)} className="sr-only" />
             {o}
           </label>
@@ -41,8 +41,8 @@ function Choice({ name, label, options, value, onChange }: { name: string; label
 /** A finished step: what happened and what to do next. */
 function Notice({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div role="status" className="rounded-sm border border-rule bg-porcelain p-5">
-      <p className="engraved text-[20px]">{title}</p>
+    <div role="status" className="rounded-sm border border-rule bg-panel p-5">
+      <p className="display text-[20px]">{title}</p>
       <div className="mt-2 text-[16px] leading-relaxed text-soft">{children}</div>
     </div>
   );
@@ -111,7 +111,7 @@ export function AuthForm({ mode, industries }: { mode: Mode; industries?: readon
 
   if (done === "check-email") return (
     <Notice title="Check your inbox">
-      We sent a confirmation link to <b className="text-ink">{f.email.trim()}</b>. Open it within an hour to activate your logbook. Nothing is sent to that address again until it&apos;s confirmed. If it doesn&apos;t arrive, look in spam or <a href="/sign-in" className="text-merlot underline underline-offset-4">sign in</a> to get a new link.
+      We sent a confirmation link to <b className="text-ink">{f.email.trim()}</b>. Open it within an hour to activate your logbook. Nothing is sent to that address again until it&apos;s confirmed. If it doesn&apos;t arrive, look in spam or <a href="/sign-in" className="text-storm underline underline-offset-4">sign in</a> to get a new link.
     </Notice>
   );
   if (done === "unverified") return (
@@ -126,7 +126,7 @@ export function AuthForm({ mode, industries }: { mode: Mode; industries?: readon
   );
   if (done === "reset-done") return (
     <Notice title="Password changed">
-      Your password is reset and other sessions were signed out. <a href="/sign-in" className="text-merlot underline underline-offset-4">Sign in</a> with the new one.
+      Your password is reset and other sessions were signed out. <a href="/sign-in" className="text-storm underline underline-offset-4">Sign in</a> with the new one.
     </Notice>
   );
 
@@ -134,7 +134,7 @@ export function AuthForm({ mode, industries }: { mode: Mode; industries?: readon
 
   return (
     <form onSubmit={submit} className="space-y-5">
-      {linkError && <p role="alert" className="rounded-sm border border-merlot px-4 py-3 text-[16px]">That link has expired or was already used. {mode === "reset" ? "Ask for a new reset link." : "Sign in to get a new one."}</p>}
+      {linkError && <p role="alert" className="rounded-sm border border-storm px-4 py-3 text-[16px]">That link has expired or was already used. {mode === "reset" ? "Ask for a new reset link." : "Sign in to get a new one."}</p>}
       {mode === "sign-up" && <Field label="Full name"><input required autoComplete="name" value={f.name} onChange={e => set("name")(e.target.value)} className={input} /></Field>}
       {mode !== "reset" && <Field label="Email"><input required type="email" autoComplete="email" value={f.email} onChange={e => set("email")(e.target.value)} className={input} /></Field>}
       {mode !== "forgot" && (
@@ -152,17 +152,17 @@ export function AuthForm({ mode, industries }: { mode: Mode; industries?: readon
           </Field>
           <Choice name="preferredIndustry" label="Industry you follow most (optional)" options={industries} value={f.preferredIndustry} onChange={set("preferredIndustry")} />
           <label className="flex items-start gap-3 text-[15px] leading-relaxed text-soft">
-            <input type="checkbox" required checked={f.agree} onChange={e => setF(x => ({ ...x, agree: e.target.checked }))} className="mt-1 h-4 w-4 accent-[var(--merlot)]" />
-            <span>I&apos;m 18 or older, and I agree to the <a href="/legal#terms" target="_blank" className="text-merlot underline underline-offset-4">Terms</a> and <a href="/legal#privacy" target="_blank" className="text-merlot underline underline-offset-4">Privacy Policy</a>. I understand Barometer gives no investment advice.</span>
+            <input type="checkbox" required checked={f.agree} onChange={e => setF(x => ({ ...x, agree: e.target.checked }))} className="mt-1 h-4 w-4 accent-[var(--storm)]" />
+            <span>I&apos;m 18 or older, and I agree to the <a href="/legal#terms" target="_blank" className="text-storm underline underline-offset-4">Terms</a> and <a href="/legal#privacy" target="_blank" className="text-storm underline underline-offset-4">Privacy Policy</a>. I understand Barometer gives no investment advice.</span>
           </label>
         </>
       )}
-      {error && <p role="alert" className="rounded-sm border border-merlot px-4 py-3 text-[16px]">{error}</p>}
+      {error && <p role="alert" className="rounded-sm border border-storm px-4 py-3 text-[16px]">{error}</p>}
       <button type="submit" disabled={busy || leaving} className={primary}>{leaving ? "Opening your logbook…" : busy ? "One moment…" : label}</button>
       <p className="text-[16px] text-soft">
-        {mode === "sign-up" && <>Already keep one? <a href={`/sign-in${keepNext}`} className="text-merlot underline underline-offset-4">Sign in</a></>}
-        {mode === "sign-in" && <>New here? <a href={`/sign-up${keepNext}`} className="text-merlot underline underline-offset-4">Keep a logbook</a></>}
-        {(mode === "forgot" || mode === "reset") && <><a href="/sign-in" className="text-merlot underline underline-offset-4">Back to sign in</a></>}
+        {mode === "sign-up" && <>Already keep one? <a href={`/sign-in${keepNext}`} className="text-storm underline underline-offset-4">Sign in</a></>}
+        {mode === "sign-in" && <>New here? <a href={`/sign-up${keepNext}`} className="text-storm underline underline-offset-4">Keep a logbook</a></>}
+        {(mode === "forgot" || mode === "reset") && <><a href="/sign-in" className="text-storm underline underline-offset-4">Back to sign in</a></>}
       </p>
     </form>
   );

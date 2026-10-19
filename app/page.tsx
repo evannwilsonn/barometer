@@ -44,9 +44,9 @@ function Certificate() {
     ["Not certified", "direction. Which way a stock moves next week is close to a coin flip, and the instrument doesn't try."],
   ];
   return (
-    <section id="accuracy" aria-labelledby="h-cert" className="mt-20 rounded-md border-[6px] border-double border-case bg-porcelain p-6 sm:p-10">
-      <div className="flex flex-wrap items-baseline justify-between gap-3 border-b-2 border-ink pb-4">
-        <h2 id="h-cert" className="engraved text-[30px] leading-none sm:text-[38px]">Certificate of calibration</h2>
+    <section id="accuracy" aria-labelledby="h-cert" className="mt-20 rounded-md border-[6px] border-double border-bezel bg-panel p-6 sm:p-10">
+      <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-bezel pb-4">
+        <h2 id="h-cert" className="display text-[30px] leading-none sm:text-[38px]">Certificate of calibration</h2>
         <p className="label">Barometer No. 11</p>
       </div>
       <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
@@ -64,14 +64,14 @@ function Certificate() {
               <caption className="label mb-2 text-left">QLIKE loss, lower is better</caption>
               <thead>
                 <tr className="label text-left">
-                  <th scope="col" className="border-b-2 border-ink py-2 pr-3 font-normal">Forecast</th>
-                  <th scope="col" className="border-b-2 border-ink px-3 py-2 text-right font-normal">2020–24</th>
-                  <th scope="col" className="border-b-2 border-ink py-2 pl-3 text-right font-normal">2025</th>
+                  <th scope="col" className="border-b-2 border-bezel py-2 pr-3 font-normal">Forecast</th>
+                  <th scope="col" className="border-b-2 border-bezel px-3 py-2 text-right font-normal">2020–24</th>
+                  <th scope="col" className="border-b-2 border-bezel py-2 pl-3 text-right font-normal">2025</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map(([name, note, a, b], i) => (
-                  <tr key={name} className={i === rows.length - 1 ? "text-merlot" : ""}>
+                  <tr key={name} className={i === rows.length - 1 ? "text-storm" : ""}>
                     <td className="border-b border-rule py-3 pr-3">{name}<span className="block text-[13px] text-faint">{note}</span></td>
                     <td className="border-b border-rule px-3 py-3 text-right font-mono">{a.qlike.toFixed(3)}</td>
                     <td className="border-b border-rule py-3 pl-3 text-right font-mono">{b ? b.qlike.toFixed(3) : "–"}</td>
@@ -102,7 +102,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
     <main className="mx-auto max-w-[1180px] px-4 pb-16 sm:px-7">
       <Masthead />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-6 border-t border-rule py-12 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:items-end">
-        <h1 className="engraved text-[44px] leading-[1.02] text-balance sm:text-[64px]">How rough will next week be?</h1>
+        <div>
+          <p className="label">Volatility forecasts for US stocks</p>
+          <h1 className="display mt-4 text-[40px] leading-[1.08] text-balance italic sm:text-[60px]">How rough will next week be?</h1>
+          <hr className="brass-rule mt-6 w-40" />
+        </div>
         <p className="text-[18px] leading-relaxed text-soft">A barometer for stocks. It forecasts how much a stock is likely to move over the next five trading days, turns that into a likely price range, and explains it in plain words. It reads the size of moves, never their direction.</p>
       </div>
       <Station key={symbol.toUpperCase()} initial={initial} initialError={initialError} accounts={accountsOn()} signedIn={Boolean(user)} saved={saved} />

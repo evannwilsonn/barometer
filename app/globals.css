@@ -1,93 +1,137 @@
 @import "tailwindcss";
 
-/* An aneroid barometer: porcelain dial, lacquered merlot case, copper set hand, blacked steel needle. */
+/* An aneroid barometer: navy ground with engine-turned rings, a brass bezel, a cream face,
+   a blacked needle and a brass set hand. Dark is the instrument as photographed; light is the
+   same instrument on cream paper, inked in navy. */
 :root {
-  --wall: #ece3dd;
-  --porcelain: #fbf8f3;
-  --case: #5c1621;
-  --case-ink: #f6ece6;
-  --ink: #1d1513;
-  --soft: #4a3d39;
-  --faint: #6a5c57;
-  --rule: #ddcfc7;
-  --merlot: #7a1f2e;
-  --copper: #a8491f;
-  --needle: #1d1513;
-  --line: #963044;
-  --band: #ecd5d0;
-  --band-2: #f5e9e5;
+  --wall: #ebe1c9;
+  --panel: #f7f0df;
+  --case: #14233a;
+  --case-ink: #f0e6cf;
+  --ink: #14233a;
+  --soft: #3a4357;
+  --faint: #5c5f6a;
+  --rule: #d6c7a3;
+  --hair: #d6c7a3;
+  --storm: #9e2b25;
+  --brass: #7a581c;
+  --btn: #14233a;
+  --btn-ink: #f0e6cf;
+  --needle: #1d1a16;
+  --line: #9e2b25;
+  --band: #e6cbbb;
+  --band-2: #f1e2d3;
+  --rings: rgb(20 35 58 / 0.055);
+  --shadow: rgb(20 35 58 / 0.18);
   color-scheme: light;
+  /* the instrument itself is the same object in either light: brass case, cream face */
+  --bezel: #c39a4c;
+  --bezel-edge: #8a6a2c;
+  --dial-face: #f0e6cf;
+  --dial-ink: #1d1a16;
+  --dial-faint: #6b604c;
+  --dial-red: #9e2b25;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --wall: #120a0b;
-    --porcelain: #211517;
-    --case: #3a0f16;
-    --case-ink: #f6ece6;
-    --ink: #f3e9e4;
-    --soft: #cdbcb6;
-    --faint: #a8968f;
-    --rule: #3c2a2c;
-    --merlot: #e9a0aa;
-    --copper: #e3925f;
-    --needle: #f3e9e4;
-    --line: #d2687a;
-    --band: #4a2328;
-    --band-2: #321b1e;
+    --wall: #14233a;
+    --panel: #1b2d48;
+    --case: #0d1828;
+    --case-ink: #f0e6cf;
+    --ink: #f0e6cf;
+    --soft: #cfc4ab;
+    --faint: #a39a87;
+    --rule: #2d4060;
+    --hair: rgb(195 154 76 / 0.32);
+    --storm: #e8907f;
+    --brass: #c9a258;
+    --btn: #c39a4c;
+    --btn-ink: #14233a;
+    --needle: #f0e6cf;
+    --line: #e8907f;
+    --band: #5a3240;
+    --band-2: #2f3550;
+    --rings: rgb(195 154 76 / 0.06);
+  --shadow: rgb(4 8 16 / 0.45);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --wall: #120a0b;
-  --porcelain: #211517;
-  --case: #3a0f16;
-  --case-ink: #f6ece6;
-  --ink: #f3e9e4;
-  --soft: #cdbcb6;
-  --faint: #a8968f;
-  --rule: #3c2a2c;
-  --merlot: #e9a0aa;
-  --copper: #e3925f;
-  --needle: #f3e9e4;
-  --line: #d2687a;
-  --band: #4a2328;
-  --band-2: #321b1e;
+  --wall: #14233a;
+  --panel: #1b2d48;
+  --case: #0d1828;
+  --case-ink: #f0e6cf;
+  --ink: #f0e6cf;
+  --soft: #cfc4ab;
+  --faint: #a39a87;
+  --rule: #2d4060;
+  --hair: rgb(195 154 76 / 0.32);
+  --storm: #e8907f;
+  --brass: #c9a258;
+  --btn: #c39a4c;
+  --btn-ink: #14233a;
+  --needle: #f0e6cf;
+  --line: #e8907f;
+  --band: #5a3240;
+  --band-2: #2f3550;
+  --rings: rgb(195 154 76 / 0.06);
+  --shadow: rgb(4 8 16 / 0.45);
   color-scheme: dark;
 }
 
 @theme inline {
   --color-wall: var(--wall);
-  --color-porcelain: var(--porcelain);
+  --color-panel: var(--panel);
+  --color-hair: var(--hair);
+  --color-btn: var(--btn);
+  --color-btn-ink: var(--btn-ink);
+  --color-bezel: var(--bezel);
+  --color-dial-face: var(--dial-face);
+  --color-dial-ink: var(--dial-ink);
   --color-case: var(--case);
   --color-case-ink: var(--case-ink);
   --color-ink: var(--ink);
   --color-soft: var(--soft);
   --color-faint: var(--faint);
   --color-rule: var(--rule);
-  --color-merlot: var(--merlot);
-  --color-copper: var(--copper);
+  --color-storm: var(--storm);
+  --color-brass: var(--brass);
   --color-band: var(--band);
   --color-band-2: var(--band-2);
-  --font-engraved: var(--font-marcellus);
-  --font-serif: var(--font-newsreader);
-  --font-mono: var(--font-spline-mono);
+  --font-engraved: var(--font-arsenal);
+  --font-serif: var(--font-baskerville);
+  --font-mono: var(--font-arsenal);
 }
 
 html { -webkit-text-size-adjust: 100%; }
-body { background: var(--wall); color: var(--ink); font-family: var(--font-newsreader), Georgia, serif; }
+/* Engine-turned rings, centred behind the dial like the thumbnail's case. */
+body {
+  background-color: var(--wall);
+  background-image: repeating-radial-gradient(circle at 24% 520px, transparent 0 13px, var(--rings) 13px 14px);
+  color: var(--ink);
+  font-family: var(--font-baskerville), Baskerville, Georgia, serif;
+  font-size: 15.5px;
+}
 /* In the base layer, so a component can still opt out with outline-none (the search box draws its own). */
 @layer base {
-  :focus-visible { outline: 2px solid var(--copper); outline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+  .font-mono { letter-spacing: 0.12em; }
 }
 .tabular { font-variant-numeric: tabular-nums lining-nums; }
-.label { font-family: var(--font-spline-mono), ui-monospace, monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
-.engraved { font-family: var(--font-marcellus), Georgia, serif; letter-spacing: 0.06em; text-transform: uppercase; }
+.label { font-family: var(--font-arsenal), Georgia, serif; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--brass); }
+.engraved { font-family: var(--font-arsenal), Georgia, serif; letter-spacing: 0.14em; text-transform: uppercase; }
+.display { font-family: var(--font-baskerville), Baskerville, Georgia, serif; font-weight: 400; letter-spacing: -0.01em; }
+/* the brass rule under a nameplate, as on the thumbnail */
+.brass-rule { height: 1px; background: var(--bezel); border: 0; }
 
 /* Dial and charts */
-.dial text { font-family: var(--font-marcellus), Georgia, serif; }
-.chart text { font: 400 11.5px var(--font-spline-mono), ui-monospace, monospace; fill: var(--faint); }
+.dial { filter: drop-shadow(0 18px 24px var(--shadow)); }
+.dial text { font-family: var(--font-arsenal), Georgia, serif; }
+.dial .num { font-family: var(--font-baskerville), Georgia, serif; }
+.dial .it { font-family: var(--font-baskerville), Georgia, serif; font-style: italic; }
+.chart text { font: 400 12.5px var(--font-arsenal), Georgia, serif; letter-spacing: 0.06em; fill: var(--faint); }
 .chart .grid line { stroke: var(--rule); }
-.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--ink); color: var(--porcelain); font: 400 13px/1.45 var(--font-spline-mono), monospace; padding: 8px 10px; border-radius: 4px; white-space: pre-line; }
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--ink); color: var(--panel); font: 400 14px/1.45 var(--font-arsenal), Georgia, serif; letter-spacing: 0.06em; padding: 8px 10px; border-radius: 3px; white-space: pre-line; }
 
 @media (prefers-reduced-motion: no-preference) {
   .needle { transition: transform 900ms cubic-bezier(.22, 1, .36, 1); }

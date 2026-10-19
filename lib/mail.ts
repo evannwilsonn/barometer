@@ -1,4 +1,4 @@
-// Outgoing email through Nodemailer, styled like the instrument: porcelain card, merlot rule.
+// Outgoing email through Nodemailer, styled like the instrument: a cream dial card under a navy rule.
 //
 // Transport, in order: Gmail when NODEMAILER_EMAIL and NODEMAILER_PASSWORD (a Gmail app password)
 // are set; any SMTP server in SMTP_URL (e.g. smtp://localhost:1025 for a local mail catcher);
@@ -36,7 +36,7 @@ export const esc = (s: string) =>
 /** Plain paragraphs (blank-line separated) to escaped HTML paragraphs. */
 export const paragraphs = (text: string) =>
   text.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean)
-    .map(p => `<p style="margin:0 0 14px;font:17px/1.6 Georgia,serif;color:#1d1513">${esc(p)}</p>`).join("");
+    .map(p => `<p style="margin:0 0 14px;font:17px/1.6 Baskerville,Georgia,serif;color:#14233a">${esc(p)}</p>`).join("");
 
 // ---------- unsubscribe links ----------
 
@@ -56,25 +56,25 @@ export function validUnsubscribe(userId: string, token: string) {
 export function frame(title: string, body: string, unsubscribe?: string) {
   const s = esc(site());
   const why = unsubscribe
-    ? `You're getting this because you turned on the morning dispatch for your Barometer logbook. <a href="${esc(unsubscribe)}" style="color:#7a1f2e">Unsubscribe in one click</a>, or switch it off on your logbook page.<br>`
+    ? `You're getting this because you turned on the morning dispatch for your Barometer logbook. <a href="${esc(unsubscribe)}" style="color:#9e2b25">Unsubscribe in one click</a>, or switch it off on your logbook page.<br>`
     : "";
-  return `<!doctype html><html><body style="margin:0;background:#ece3dd;padding:28px 12px">
+  return `<!doctype html><html><body style="margin:0;background:#ebe1c9;padding:28px 12px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fbf8f3;border-top:6px solid #5c1621">
-<tr><td style="padding:28px 32px 6px;font:13px/1.4 'Courier New',monospace;letter-spacing:2px;color:#6a5c57;text-transform:uppercase">Barometer · No. 11</td></tr>
-<tr><td style="padding:0 32px 18px;font:400 30px/1.15 Georgia,serif;color:#5c1621">${esc(title)}</td></tr>
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#f7f0df;border-top:6px solid #14233a;border-bottom:3px solid #c39a4c">
+<tr><td style="padding:28px 32px 6px;font:13px/1.4 'Courier New',monospace;letter-spacing:3px;color:#7a581c;text-transform:uppercase">Barometer · No. 11</td></tr>
+<tr><td style="padding:0 32px 18px;font:400 30px/1.15 Baskerville,Georgia,serif;color:#14233a">${esc(title)}</td></tr>
 <tr><td style="padding:0 32px 10px">${body}</td></tr>
-<tr><td style="padding:18px 32px 28px;border-top:1px solid #ddcfc7;font:13px/1.5 Georgia,serif;color:#6a5c57">
+<tr><td style="padding:18px 32px 28px;border-top:1px solid #d6c7a3;font:13px/1.5 Baskerville,Georgia,serif;color:#5c5f6a">
 ${why}Barometer is a free, non-commercial student project. Its forecasts give the likely size of next week's moves, never their direction, and nothing here is investment advice or a recommendation to buy or sell anything.<br>
-<a href="${s}" style="color:#7a1f2e">Open Barometer</a> · <a href="${s}/logbook" style="color:#7a1f2e">Your logbook</a> · <a href="${s}/legal" style="color:#7a1f2e">Terms and privacy</a></td></tr>
+<a href="${s}" style="color:#9e2b25">Open Barometer</a> · <a href="${s}/logbook" style="color:#9e2b25">Your logbook</a> · <a href="${s}/legal" style="color:#9e2b25">Terms and privacy</a></td></tr>
 </table></td></tr></table></body></html>`;
 }
 
 /** A one-button email: confirm an address, reset a password. */
 export async function actionEmail(to: string, subject: string, title: string, text: string, button: string, url: string) {
   const body = paragraphs(text) +
-    `<p style="margin:8px 0 18px"><a href="${esc(url)}" style="display:inline-block;background:#5c1621;color:#f6ece6;padding:12px 20px;border-radius:3px;font:14px 'Courier New',monospace;letter-spacing:1px;text-decoration:none;text-transform:uppercase">${esc(button)}</a></p>` +
-    `<p style="margin:0 0 14px;font:13px/1.5 Georgia,serif;color:#6a5c57;word-break:break-all">Or paste this link into your browser: ${esc(url)}</p>`;
+    `<p style="margin:8px 0 18px"><a href="${esc(url)}" style="display:inline-block;background:#14233a;color:#f0e6cf;padding:12px 20px;border-radius:3px;font:14px 'Courier New',monospace;letter-spacing:1px;text-decoration:none;text-transform:uppercase">${esc(button)}</a></p>` +
+    `<p style="margin:0 0 14px;font:13px/1.5 Baskerville,Georgia,serif;color:#5c5f6a;word-break:break-all">Or paste this link into your browser: ${esc(url)}</p>`;
   return send(to, subject, frame(title, body), `${text}\n\n${button}: ${url}`);
 }
 

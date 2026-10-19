@@ -135,7 +135,7 @@ npx inngest-cli@latest dev -u http://localhost:3000/api/inngest # the job runner
 
 The page shows:
 
-- **Dial:** a barometer face. The needle is the forecast and a copper set hand marks last month, the way a real barometer's set hand marks the previous reading. Its words run Settled, Fair, Change, Rough, Stormy, with boundaries at 19%, 28%, 45% and 90%: the 10th, 50th, 90th and 99th percentiles of forecasts in the test years, rounded.
+- **Dial:** a barometer face. The needle is the forecast and a brass set hand marks last month, the way a real barometer's set hand marks the previous reading. Its words run Settled, Fair, Change, Rough, Stormy, with boundaries at 19%, 28%, 45% and 90%: the 10th, 50th, 90th and 99th percentiles of forecasts in the test years, rounded.
 - **Numbers:** the forecast next to last month's volatility and EWMA.
 - **Price range:** a bar for the likely closing price a week out.
 - **Note:** the written explanation.

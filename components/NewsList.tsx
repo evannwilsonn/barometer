@@ -18,7 +18,7 @@ export function NewsList({ symbol }: { symbol: string }) {
   if (items && !items.length) return null;
   return (
     <section aria-labelledby="h-news" className="mt-12">
-      <h2 id="h-news" className="engraved mb-4 text-[26px]">Dispatches · {symbol}</h2>
+      <h2 id="h-news" className="display mb-4 text-[26px]">Dispatches · {symbol}</h2>
       {!items ? <p className="label">Fetching the wires…</p> : (
         <ol className="divide-y divide-rule border-y border-rule">
           {items.map(a => (
